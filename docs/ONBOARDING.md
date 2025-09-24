@@ -68,7 +68,9 @@ installation required—opening `index.html` in a modern browser will execute th
    * Includes optional headless-browser coverage (Puppeteer + axe-core) to verify keyboard
      flows and accessibility rules against the real HTML shell. Drop a portable Chromium
      build on the workstation and reference it via `PUPPETEER_EXECUTABLE_PATH` to enable
-     the additional checks offline.
+     the additional checks offline. The repository intentionally omits the Puppeteer
+     packages from `package.json`; fetch and stage them from an approved internal mirror if
+     you want those tests to execute.
 
 The renderers operate on plain DOM APIs rather than a framework so it is easy to follow
 what happens. When a department is selected, the code clears existing child nodes in each

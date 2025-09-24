@@ -19,9 +19,5 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module",
-  "devDependencies": {
-    "@axe-core/puppeteer": "^4.9.2",
-    "puppeteer-core": "^22.13.1"
-  }
+  "type": "module"
 }

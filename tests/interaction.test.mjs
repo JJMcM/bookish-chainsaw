@@ -61,7 +61,7 @@ const withBrowserPage = async (callback) => {
     } catch (error) {
       if (!warnedAboutSkip) {
         console.warn(
-          "Skipping headless browser integration tests. Install puppeteer-core and @axe-core/puppeteer to run them."
+          "Skipping headless browser integration tests. Provision offline copies of puppeteer-core and @axe-core/puppeteer to enable them."
         );
         warnedAboutSkip = true;
       }
@@ -73,7 +73,7 @@ const withBrowserPage = async (callback) => {
   if (!executablePath) {
     if (!warnedAboutSkip) {
       console.warn(
-        "Skipping headless browser integration tests. Set PUPPETEER_EXECUTABLE_PATH to run them."
+        "Skipping headless browser integration tests. Set PUPPETEER_EXECUTABLE_PATH to point at a locally staged Chromium build."
       );
       warnedAboutSkip = true;
     }

@@ -86,6 +86,9 @@ workstations:
   `PUPPETEER_EXECUTABLE_PATH` (or `CHROMIUM_PATH`) to point at a local Chromium binary to
   enable keyboard flow and axe-core accessibility assertions. Copy a portable Chromium
   build onto the offline workstation and point the environment variable at its executable.
+  The repository does not bundle `puppeteer-core` or `@axe-core/puppeteer`; stage those
+  packages manually (for example via an internal artifact store) if you want the browser
+  suite to execute offline.
 * `npm run check` chains the linters and tests.
 * `npm run ci` replicates the continuous-integration workflow (checks + packaging without
   regenerating the archive if validation fails).

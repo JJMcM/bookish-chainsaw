@@ -90,7 +90,7 @@ rather than pixel comparisons to keep the harness fast.
 
 ## Developer Workflow
 
-1. Install dependencies:
+1. Install dependencies (mirror them internally for offline environments):
 
    ```bash
    npm install --save-dev vitest jsdom @testing-library/dom zod
@@ -115,7 +115,8 @@ rather than pixel comparisons to keep the harness fast.
   `--dry-run --fail-on-warning` mode against new exports.
 * Provision a portable Chromium build (checked into internal artifact storage) and expose its
   path via `PUPPETEER_EXECUTABLE_PATH` so keyboard and accessibility flows run in CI without
-  internet access.
+  internet access. Mirror the `puppeteer-core` and `@axe-core/puppeteer` packages alongside
+  the binary because the repository does not declare them in `package.json`.
 * This ensures data updates or UI refactors cannot be merged without passing automated checks.
 
 ## Next Steps
