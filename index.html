@@ -5,12 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Workplace Operations Dashboard</title>
     <link rel="stylesheet" href="assets/styles.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
   </head>
   <body>
     <div class="dashboard">
@@ -21,25 +15,25 @@
             A unified view of team health, project delivery, and operational focus.
           </p>
         </div>
-        <div class="dashboard__meta">
+        <div class="dashboard__meta" aria-live="polite">
           <div class="meta__item">
             <span class="meta__label">Reporting Period</span>
-            <span class="meta__value" id="reporting-period">Week 32 · 2024</span>
+            <span class="meta__value" id="reporting-period">Loading…</span>
           </div>
           <div class="meta__item">
-            <span class="meta__label">Last Synced</span>
-            <span class="meta__value" id="last-synced">15 minutes ago</span>
+            <span class="meta__label">Last Updated</span>
+            <span class="meta__value" id="last-updated">Awaiting import</span>
           </div>
         </div>
       </header>
+
+      <aside id="data-warnings" class="dashboard__warnings" role="status" aria-live="polite"></aside>
 
       <main class="dashboard__main">
         <aside class="dashboard__sidebar">
           <section class="card">
             <h2>Focus Filter</h2>
-            <label for="department-select" class="filter__label"
-              >Department</label
-            >
+            <label for="department-select" class="filter__label">Department</label>
             <select id="department-select" class="filter__select"></select>
             <p class="filter__hint">
               Explore how each department is tracking against this week’s operational
@@ -58,10 +52,37 @@
 
           <section class="card">
             <div class="card__header">
-              <h2>Weekly Delivery Trend</h2>
-              <span class="card__context" id="trend-context"></span>
+              <div>
+                <h2>Weekly Delivery Trend</h2>
+                <span class="card__context" id="trend-context"></span>
+              </div>
+              <button
+                id="trend-toggle"
+                class="button"
+                type="button"
+                aria-expanded="false"
+                aria-controls="trend-chart trend-table"
+              >
+                View table
+              </button>
             </div>
-            <div id="trend-chart" class="trend-chart" role="img" aria-label="Weekly delivery trend chart"></div>
+            <div class="trend" data-view="chart">
+              <div
+                id="trend-chart"
+                class="trend-chart"
+                role="img"
+                aria-label="Weekly delivery trend chart"
+              ></div>
+              <table id="trend-table" class="trend-table" aria-label="Weekly delivery trend data">
+                <thead>
+                  <tr>
+                    <th scope="col">Day</th>
+                    <th scope="col">Value</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
           </section>
 
           <section class="grid grid--split">
@@ -86,9 +107,8 @@
     </div>
 
     <footer class="dashboard__footer">
-      <p>
-        Built for transparent operations. Data refreshes every 15 minutes from our
-        project tracker, HRIS, and facilities telemetry.
+      <p id="refresh-guidance">
+        Built for transparent operations. Import a new offline dataset to refresh the view.
       </p>
     </footer>
 
