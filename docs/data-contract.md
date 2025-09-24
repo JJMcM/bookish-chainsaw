@@ -6,12 +6,13 @@ below so the validation layer can provide meaningful feedback instead of failing
 
 ```ts
 interface DashboardDataset {
+  schemaVersion: 1;             // Increment when the contract changes
   meta: {
     reportingPeriod: string;     // e.g. "Week 32 · 2024"
     lastUpdated: string;         // e.g. "Manual import · Aug 5, 2024 09:00"
     refreshGuidance: string;     // Guidance displayed in the footer
   };
-  departments: Department[];
+  departments: Department[];    // Up to 50 entries per snapshot
 }
 
 interface Department {
@@ -32,21 +33,21 @@ interface Department {
     datapoints: Array<{
       label: string;             // Typically day of week
       value: number;             // Numeric value plotted in the chart and table
-    }>;
+    }>;                         // Capped at 366 points (roughly one year of daily data)
   };
   projects: {
     context: string;
-    items: Array<ListItem>;
+    items: Array<ListItem>;      // Capped at 200 items to keep rendering fast
   };
   highlights: {
     context: string;
-    items: Array<ListItem>;
+    items: Array<ListItem>;      // Capped at 200 items
   };
   meetings: Array<{
     title: string;
     description: string;
     time: string;
-  }>;
+  }>;                           // Capped at 100 upcoming meetings
 }
 
 interface ListItem {

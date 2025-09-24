@@ -3,6 +3,40 @@ import { validateDataset } from "./validation.js";
 
 const MIN_BAR_HEIGHT = 8;
 const DASHBOARD_TITLE = "Industrial Maintenance Dashboard";
+const BOOT_MARK = "dashboard:boot";
+const LOAD_MARK = "dashboard:load";
+const TREND_CHART_MARK = "dashboard:trend-chart";
+const TREND_TABLE_MARK = "dashboard:trend-table";
+
+const supportsPerformanceMarks =
+  typeof performance !== "undefined" &&
+  typeof performance.mark === "function" &&
+  typeof performance.measure === "function";
+
+const mark = (name, state) => {
+  if (!supportsPerformanceMarks) {
+    return;
+  }
+
+  performance.mark(`${name}:${state}`);
+};
+
+const measure = (name, startState, endState) => {
+  if (!supportsPerformanceMarks) {
+    return;
+  }
+
+  const start = `${name}:${startState}`;
+  const end = `${name}:${endState}`;
+  performance.measure(name, start, end);
+  if (typeof performance.clearMarks === "function") {
+    performance.clearMarks(start);
+    performance.clearMarks(end);
+  }
+  if (typeof performance.clearMeasures === "function") {
+    performance.clearMeasures(name);
+  }
+};
 
 const requireElement = (documentRef, selector, description) => {
   const element = documentRef.querySelector(selector);
@@ -29,30 +63,35 @@ const renderList = (container, items, emptyCopy) => {
     return;
   }
 
-  items.forEach((item) => {
-    const li = container.ownerDocument.createElement("li");
+  const doc = container.ownerDocument;
+  const fragment = doc.createDocumentFragment();
+
+  for (const item of items) {
+    const li = doc.createElement("li");
     li.className = "list__item";
 
-    const content = container.ownerDocument.createElement("div");
+    const content = doc.createElement("div");
     content.className = "list__content";
 
-    const title = container.ownerDocument.createElement("span");
+    const title = doc.createElement("span");
     title.className = "list__title";
     title.textContent = item.title;
 
-    const subtitle = container.ownerDocument.createElement("span");
+    const subtitle = doc.createElement("span");
     subtitle.className = "list__subtitle";
     subtitle.textContent = item.subtitle;
 
     content.append(title, subtitle);
 
-    const meta = container.ownerDocument.createElement("span");
+    const meta = doc.createElement("span");
     meta.className = "list__meta";
     meta.textContent = item.meta;
 
     li.append(content, meta);
-    container.append(li);
-  });
+    fragment.append(li);
+  }
+
+  container.append(fragment);
 };
 
 const renderMeetings = (container, meetings) => {
@@ -66,25 +105,30 @@ const renderMeetings = (container, meetings) => {
     return;
   }
 
-  meetings.forEach((meeting) => {
-    const item = container.ownerDocument.createElement("li");
+  const doc = container.ownerDocument;
+  const fragment = doc.createDocumentFragment();
+
+  for (const meeting of meetings) {
+    const item = doc.createElement("li");
     item.className = "meeting";
 
-    const title = container.ownerDocument.createElement("span");
+    const title = doc.createElement("span");
     title.className = "meeting__title";
     title.textContent = meeting.title;
 
-    const description = container.ownerDocument.createElement("span");
+    const description = doc.createElement("span");
     description.className = "meeting__meta";
     description.textContent = meeting.description;
 
-    const time = container.ownerDocument.createElement("span");
+    const time = doc.createElement("span");
     time.className = "meeting__meta";
     time.textContent = meeting.time;
 
     item.append(title, description, time);
-    container.append(item);
-  });
+    fragment.append(item);
+  }
+
+  container.append(fragment);
 };
 
 const renderStats = (documentRef, container, metrics) => {
@@ -97,7 +141,9 @@ const renderStats = (documentRef, container, metrics) => {
     return;
   }
 
-  metrics.forEach((metric) => {
+  const fragment = documentRef.createDocumentFragment();
+
+  for (const metric of metrics) {
     const card = documentRef.createElement("article");
     card.className = "stat-card";
 
@@ -116,28 +162,41 @@ const renderStats = (documentRef, container, metrics) => {
     trend.append(trendLabel, documentRef.createTextNode(metric.trend.description));
 
     card.append(label, value, trend);
-    container.append(card);
-  });
+    fragment.append(card);
+  }
+
+  container.append(fragment);
 };
 
 const renderTrendChart = (documentRef, chart, datapoints) => {
+  mark(TREND_CHART_MARK, "start");
   clearElement(chart);
 
   if (!datapoints.length) {
     chart.dataset.empty = "true";
     chart.textContent = "Trend data unavailable for this department.";
+    mark(TREND_CHART_MARK, "end");
+    measure(TREND_CHART_MARK, "start", "end");
     return;
   }
 
   delete chart.dataset.empty;
-  const maxValue = Math.max(...datapoints.map((point) => point.value), 0);
+  const fragment = documentRef.createDocumentFragment();
+  let maxValue = 0;
 
-  datapoints.forEach((point) => {
+  for (const point of datapoints) {
+    if (point.value > maxValue) {
+      maxValue = point.value;
+    }
+  }
+
+  for (const point of datapoints) {
     const bar = documentRef.createElement("div");
     bar.className = "trend-chart__bar";
     bar.dataset.label = point.label;
 
-    const height = maxValue === 0 ? MIN_BAR_HEIGHT : Math.max((point.value / maxValue) * 100, MIN_BAR_HEIGHT);
+    const height =
+      maxValue === 0 ? MIN_BAR_HEIGHT : Math.max((point.value / maxValue) * 100, MIN_BAR_HEIGHT);
     bar.style.height = `${height}%`;
 
     const value = documentRef.createElement("span");
@@ -145,11 +204,16 @@ const renderTrendChart = (documentRef, chart, datapoints) => {
     value.textContent = formatValue(point.value);
 
     bar.append(value);
-    chart.append(bar);
-  });
+    fragment.append(bar);
+  }
+
+  chart.append(fragment);
+  mark(TREND_CHART_MARK, "end");
+  measure(TREND_CHART_MARK, "start", "end");
 };
 
 const renderTrendTable = (documentRef, tableBody, datapoints) => {
+  mark(TREND_TABLE_MARK, "start");
   clearElement(tableBody);
 
   if (!datapoints.length) {
@@ -159,10 +223,14 @@ const renderTrendTable = (documentRef, tableBody, datapoints) => {
     cell.textContent = "No trend data available.";
     row.append(cell);
     tableBody.append(row);
+    mark(TREND_TABLE_MARK, "end");
+    measure(TREND_TABLE_MARK, "start", "end");
     return;
   }
 
-  datapoints.forEach((point) => {
+  const fragment = documentRef.createDocumentFragment();
+
+  for (const point of datapoints) {
     const row = documentRef.createElement("tr");
     const labelCell = documentRef.createElement("th");
     labelCell.setAttribute("scope", "row");
@@ -172,25 +240,42 @@ const renderTrendTable = (documentRef, tableBody, datapoints) => {
     valueCell.textContent = formatValue(point.value);
 
     row.append(labelCell, valueCell);
-    tableBody.append(row);
-  });
+    fragment.append(row);
+  }
+
+  tableBody.append(fragment);
+  mark(TREND_TABLE_MARK, "end");
+  measure(TREND_TABLE_MARK, "start", "end");
 };
+
+const MAX_WARNING_ITEMS = 5;
 
 const renderWarnings = (region, warnings, documentRef) => {
   clearElement(region);
   if (!warnings.length) {
     region.removeAttribute("data-state");
+    region.removeAttribute("aria-label");
     return;
   }
 
   const list = documentRef.createElement("ul");
-  warnings.forEach((warning) => {
+  const total = warnings.length;
+  const visible = warnings.slice(0, MAX_WARNING_ITEMS);
+  for (const warning of visible) {
     const item = documentRef.createElement("li");
     item.textContent = warning;
     list.append(item);
-  });
+  }
+
+  if (total > visible.length) {
+    const item = documentRef.createElement("li");
+    item.textContent = `+${total - visible.length} additional warnings. Check dataset.`;
+    list.append(item);
+  }
+
   region.append(list);
   region.setAttribute("data-state", "visible");
+  region.setAttribute("aria-label", `${total} dataset warnings`);
 };
 
 export const createDashboard = (documentRef, rawDataset) => {
@@ -226,6 +311,7 @@ export const createDashboard = (documentRef, rawDataset) => {
   const state = {
     view: "chart",
     departments: [],
+    departmentById: new Map(),
     warnings: [],
     meta: { reportingPeriod: "", lastUpdated: "", refreshGuidance: "" },
     selectedDepartmentId: null
@@ -250,7 +336,7 @@ export const createDashboard = (documentRef, rawDataset) => {
 
   const renderDepartment = (deptId) => {
     const department = deptId
-      ? state.departments.find((item) => item.id === deptId)
+      ? state.departmentById.get(deptId)
       : state.departments[0];
 
     if (!department) {
@@ -291,15 +377,17 @@ export const createDashboard = (documentRef, rawDataset) => {
 
   const populateDepartmentSelect = (selectedId) => {
     clearElement(elements.departmentSelect);
-    state.departments.forEach((dept) => {
+    const fragment = documentRef.createDocumentFragment();
+    for (const dept of state.departments) {
       const option = documentRef.createElement("option");
       option.value = dept.id;
       option.textContent = dept.name;
       if (selectedId && dept.id === selectedId) {
         option.selected = true;
       }
-      elements.departmentSelect.append(option);
-    });
+      fragment.append(option);
+    }
+    elements.departmentSelect.append(fragment);
   };
 
   const handleDepartmentChange = (event) => {
@@ -312,6 +400,9 @@ export const createDashboard = (documentRef, rawDataset) => {
 
   const applyDataset = (validatedDataset, { requestedDepartmentId } = {}) => {
     state.departments = validatedDataset.departments;
+    state.departmentById = new Map(
+      state.departments.map((dept) => [dept.id, dept])
+    );
     state.warnings = validatedDataset.warnings;
     state.meta = validatedDataset.meta;
 
@@ -342,9 +433,12 @@ export const createDashboard = (documentRef, rawDataset) => {
     elements.departmentSelect.addEventListener("change", handleDepartmentChange);
     elements.trendToggle.addEventListener("click", handleToggleView);
 
+    mark(BOOT_MARK, "start");
     const initialDataset = validateDataset(rawDataset);
     applyDataset(initialDataset);
     setView("chart");
+    mark(BOOT_MARK, "end");
+    measure(BOOT_MARK, "start", "end");
   };
 
   boot();
@@ -353,11 +447,17 @@ export const createDashboard = (documentRef, rawDataset) => {
     renderDepartment,
     setView,
     loadDataset: (nextDataset) => {
+      mark(LOAD_MARK, "start");
       const validated = validateDataset(nextDataset);
       applyDataset(validated, { requestedDepartmentId: elements.departmentSelect.value });
+      mark(LOAD_MARK, "end");
+      measure(LOAD_MARK, "start", "end");
       return validated;
     },
-    getState: () => ({ ...state }),
+    getState: () => ({
+      ...state,
+      departmentById: new Map(state.departmentById)
+    }),
     teardown: () => {
       elements.departmentSelect.removeEventListener("change", handleDepartmentChange);
       elements.trendToggle.removeEventListener("click", handleToggleView);

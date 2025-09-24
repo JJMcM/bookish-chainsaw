@@ -30,6 +30,11 @@ class MockElement {
       return;
     }
 
+    if (node && node.isFragment) {
+      node.children.forEach((child) => this.appendChild(child));
+      return;
+    }
+
     if (typeof node === "string") {
       node = new MockTextNode(node, this.ownerDocument);
     }
@@ -107,6 +112,35 @@ class MockElement {
   }
 }
 
+class MockDocumentFragment {
+  constructor(document) {
+    this.ownerDocument = document;
+    this.children = [];
+    this.isFragment = true;
+  }
+
+  append(...nodes) {
+    nodes.forEach((node) => this.appendChild(node));
+  }
+
+  appendChild(node) {
+    if (node === null || node === undefined) {
+      return;
+    }
+
+    if (typeof node === "string") {
+      node = new MockTextNode(node, this.ownerDocument);
+    }
+
+    if (node.nodeType === 3) {
+      this.children.push(node);
+    } else {
+      node.parentNode = null;
+      this.children.push(node);
+    }
+  }
+}
+
 export const createMockDocument = () => {
   const elements = new Map();
 
@@ -120,8 +154,14 @@ export const createMockDocument = () => {
     querySelector(selector) {
       return elements.get(selector) ?? null;
     },
+    getElementById(id) {
+      return elements.get(`#${id}`) ?? null;
+    },
     createElement(tag) {
       return new MockElement(tag, document);
+    },
+    createDocumentFragment() {
+      return new MockDocumentFragment(document);
     },
     createTextNode(text) {
       return new MockTextNode(text, document);

@@ -382,6 +382,7 @@ export const departments = [
 ];
 
 export const dataset = {
+  schemaVersion: 1,
   meta: dashboardMeta,
   departments
 };

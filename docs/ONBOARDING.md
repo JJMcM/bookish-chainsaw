@@ -54,13 +54,16 @@ installation required—opening `index.html` in a modern browser will execute th
 
 5. **Entry point (`src/main.js`)**
    * Imports the compiled `dataset`, boots the dashboard, and listens for offline JSON imports.
+   * Guards against multi-megabyte snapshots, defers JSON parsing off the critical path, and logs
+     performance timings (`dataset-import:*`) for future profiling work.
    * When an operator selects a file, the controller validates and applies the new snapshot
      without reloading the page.
 
 6. **Validation layer (`src/validation.js`)**
    * Normalises any shape mismatches in the dataset so the UI never crashes on malformed
      input.
-   * Emits human-readable warnings that appear in the dashboard banner.
+   * Enforces the documented schema version, caps array sizes (departments, metrics, trend points),
+     and emits human-readable warnings that appear in the dashboard banner.
 
 7. **Testing harness (`tests/`)**
    * Provides a bespoke mock DOM implementation so renderers can be exercised without

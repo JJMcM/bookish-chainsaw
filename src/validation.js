@@ -1,4 +1,19 @@
+const SCHEMA_VERSION = 1;
+const MAX_DEPARTMENTS = 50;
+const MAX_LIST_ITEMS = 200;
+const MAX_METRICS = 50;
+const MAX_MEETINGS = 100;
+const MAX_TREND_POINTS = 366;
+
 const ensureArray = (value) => (Array.isArray(value) ? value : []);
+
+const limitArray = (value, limit, warnings, path) => {
+  const items = ensureArray(value);
+  if (items.length > limit) {
+    warnings.push(`${path} exceeded ${limit} entries; ignoring ${items.length - limit} extra.`);
+  }
+  return items.slice(0, limit);
+};
 
 const coerceString = (value, fallback = "") =>
   typeof value === "string" && value.trim().length > 0 ? value : fallback;
@@ -6,8 +21,18 @@ const coerceString = (value, fallback = "") =>
 const coerceNumber = (value, fallback = 0) =>
   typeof value === "number" && Number.isFinite(value) ? value : fallback;
 
+const warnUnknownFields = (source, allowedKeys, warnings, path) => {
+  if (!source || typeof source !== "object") {
+    return;
+  }
+  const unknown = Object.keys(source).filter((key) => !allowedKeys.includes(key));
+  if (unknown.length) {
+    warnings.push(`${path} has unknown fields: ${unknown.join(", ")}.`);
+  }
+};
+
 const buildListItems = (items, { warnings, path }) =>
-  ensureArray(items).map((item, index) => {
+  limitArray(items, MAX_LIST_ITEMS, warnings, path).map((item, index) => {
     if (!item || typeof item !== "object") {
       warnings.push(`${path}[${index}] is not an object; using fallback copy.`);
       return {
@@ -17,6 +42,7 @@ const buildListItems = (items, { warnings, path }) =>
       };
     }
 
+    warnUnknownFields(item, ["title", "subtitle", "meta"], warnings, `${path}[${index}]`);
     return {
       title: coerceString(item.title, "Untitled"),
       subtitle: coerceString(item.subtitle, "Details pending."),
@@ -25,7 +51,7 @@ const buildListItems = (items, { warnings, path }) =>
   });
 
 const buildMeetings = (items, { warnings, path }) =>
-  ensureArray(items).map((item, index) => {
+  limitArray(items, MAX_MEETINGS, warnings, path).map((item, index) => {
     if (!item || typeof item !== "object") {
       warnings.push(`${path}[${index}] is not an object; using fallback meeting.`);
       return {
@@ -35,6 +61,7 @@ const buildMeetings = (items, { warnings, path }) =>
       };
     }
 
+    warnUnknownFields(item, ["title", "description", "time"], warnings, `${path}[${index}]`);
     return {
       title: coerceString(item.title, "TBD"),
       description: coerceString(item.description, "Details forthcoming."),
@@ -43,7 +70,7 @@ const buildMeetings = (items, { warnings, path }) =>
   });
 
 const buildMetrics = (items, { warnings, path }) =>
-  ensureArray(items).map((item, index) => {
+  limitArray(items, MAX_METRICS, warnings, path).map((item, index) => {
     if (!item || typeof item !== "object") {
       warnings.push(`${path}[${index}] is not an object; using fallback metric.`);
       return {
@@ -55,6 +82,8 @@ const buildMetrics = (items, { warnings, path }) =>
     }
 
     const trend = item.trend && typeof item.trend === "object" ? item.trend : {};
+    warnUnknownFields(item, ["label", "value", "suffix", "trend"], warnings, `${path}[${index}]`);
+    warnUnknownFields(trend, ["label", "description"], warnings, `${path}[${index}].trend`);
 
     return {
       label: coerceString(item.label, `Metric ${index + 1}`),
@@ -69,12 +98,14 @@ const buildMetrics = (items, { warnings, path }) =>
 
 const buildTrend = (trend, { warnings, path }) => {
   const source = trend && typeof trend === "object" ? trend : {};
-  const datapoints = ensureArray(source.datapoints).map((point, index) => {
+  warnUnknownFields(source, ["context", "datapoints"], warnings, path);
+  const datapoints = limitArray(source.datapoints, MAX_TREND_POINTS, warnings, `${path}.datapoints`).map((point, index) => {
     if (!point || typeof point !== "object") {
       warnings.push(`${path}.datapoints[${index}] is not an object; using fallback value.`);
       return { label: `Point ${index + 1}`, value: 0 };
     }
 
+    warnUnknownFields(point, ["label", "value"], warnings, `${path}.datapoints[${index}]`);
     return {
       label: coerceString(point.label, `Point ${index + 1}`),
       value: coerceNumber(point.value, 0)
@@ -109,6 +140,25 @@ const sanitizeDepartment = (dept, index, warnings) => {
   const id = coerceString(dept.id, `dept-${index + 1}`);
   const name = coerceString(dept.name, `Department ${index + 1}`);
 
+  warnUnknownFields(
+    dept,
+    [
+      "id",
+      "name",
+      "summary",
+      "metrics",
+      "trend",
+      "projects",
+      "highlights",
+      "meetings"
+    ],
+    warnings,
+    id
+  );
+
+  warnUnknownFields(dept.projects, ["context", "items"], warnings, `${id}.projects`);
+  warnUnknownFields(dept.highlights, ["context", "items"], warnings, `${id}.highlights`);
+
   return {
     id,
     name,
@@ -136,7 +186,19 @@ export const validateDataset = (dataset) => {
   }
 
   const warnings = [];
+  warnUnknownFields(dataset, ["schemaVersion", "meta", "departments"], warnings, "dataset");
+
+  const schemaVersion = dataset.schemaVersion;
+  if (schemaVersion === undefined || schemaVersion === null) {
+    warnings.push(`Dataset missing schemaVersion; assuming v${SCHEMA_VERSION}.`);
+  } else if (schemaVersion !== SCHEMA_VERSION) {
+    warnings.push(
+      `Dataset schemaVersion ${schemaVersion} is not supported; attempting to coerce to v${SCHEMA_VERSION}.`
+    );
+  }
+
   const metaSource = dataset.meta && typeof dataset.meta === "object" ? dataset.meta : {};
+  warnUnknownFields(metaSource, ["reportingPeriod", "lastUpdated", "refreshGuidance"], warnings, "meta");
 
   const reportingPeriod = coerceString(metaSource.reportingPeriod, "Not specified");
   if (reportingPeriod === "Not specified") {
@@ -158,7 +220,7 @@ export const validateDataset = (dataset) => {
     warnings.push("Meta.refreshGuidance is missing; displaying default guidance.");
   }
 
-  const rawDepartments = ensureArray(dataset.departments);
+  const rawDepartments = limitArray(dataset.departments, MAX_DEPARTMENTS, warnings, "departments");
   if (rawDepartments.length === 0) {
     warnings.push("No departments supplied; dashboard will render placeholder content.");
   }

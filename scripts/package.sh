@@ -19,3 +19,6 @@ FILES=(
 tar -czf "$ARCHIVE" -C "$ROOT" "${FILES[@]}"
 
 echo "Offline bundle created at $ARCHIVE"
+if command -v sha256sum >/dev/null 2>&1; then
+  echo "SHA-256: $(sha256sum "$ARCHIVE" | awk '{print $1}')"
+fi

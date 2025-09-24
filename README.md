@@ -36,6 +36,10 @@ without touching the code:
 3. The dashboard validates the payload, applies it instantly, and surfaces any warnings in the
    banner while you remain offline.
 
+> Snapshots up to **2 MB** import without blocking the UI. Larger files are rejected with a
+> friendly error so the page stays responsive. Break huge exports into multiple departments or
+> trim unused fields before retrying.
+
 > The bundled dataset provides an industrial maintenance example for demo environments. Replace
 > it by importing your own CMMS export or by editing `src/data.js` directly.
 
@@ -72,9 +76,13 @@ workstations:
 
 * `npm run lint:js` executes `node --check` across the source, scripts, and test suites.
 * `npm run lint:css` scans every stylesheet to ensure no remote fonts or imports slip in.
-* `npm test` runs the lightweight DOM harness to confirm renderers, validation logic, and
-  offline guards work.
+* `npm test` runs the lightweight DOM harness to confirm renderers, validation logic, importer
+  guards, and offline behaviour work—even for large datasets.
 * `npm run check` chains the linters and tests.
+
+Performance instrumentation is available via the browser console: look for
+`dashboard:boot`, `dashboard:load`, and `dataset-import:*` measurements to compare tuning
+iterations.
 
 ### Packaging for distribution
 
@@ -85,7 +93,9 @@ npm run package
 ```
 
 The command emits `dist/offline-dashboard.tar.gz` containing `index.html`, `assets/`, `src/`,
-the README, and the dataset contract. Copy the archive to any disconnected environment.
+the README, and the dataset contract. Copy the archive to any disconnected environment. A
+SHA-256 checksum prints at the end of the run so operators can verify integrity before
+distribution.
 
 ## Testing
 
