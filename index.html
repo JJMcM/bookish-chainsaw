@@ -3,16 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Workplace Operations Dashboard</title>
+    <title>Industrial Maintenance Dashboard</title>
     <link rel="stylesheet" href="assets/styles.css" />
   </head>
   <body>
     <div class="dashboard">
       <header class="dashboard__header">
         <div>
-          <h1>Workplace Operations Dashboard</h1>
+          <h1>Industrial Maintenance Dashboard</h1>
           <p class="dashboard__subtitle">
-            A unified view of team health, project delivery, and operational focus.
+            A command center for plant maintenance leaders to track reliability, backlog,
+            and safety workstreams without needing an internet connection.
           </p>
         </div>
         <div class="dashboard__meta" aria-live="polite">
@@ -39,6 +40,18 @@
               Explore how each department is tracking against this week’s operational
               targets.
             </p>
+            <div class="ingest">
+              <label for="dataset-file" class="ingest__label">Import offline data snapshot</label>
+              <input
+                id="dataset-file"
+                class="ingest__input"
+                type="file"
+                accept="application/json,.json"
+              />
+              <p id="import-status" class="ingest__status" role="status" aria-live="polite">
+                Load a JSON export from your maintenance system to refresh the dashboard.
+              </p>
+            </div>
           </section>
 
           <section class="card card--narrow">
@@ -48,6 +61,18 @@
         </aside>
 
         <section class="dashboard__content">
+          <section
+            class="card card--summary"
+            id="department-summary-card"
+            data-state="empty"
+            aria-live="polite"
+          >
+            <h2>Maintenance Narrative</h2>
+            <p id="department-summary" class="summary__body">
+              Choose a maintenance group to see their weekly context.
+            </p>
+          </section>
+
           <section class="grid grid--stats" id="stats-grid"></section>
 
           <section class="card">

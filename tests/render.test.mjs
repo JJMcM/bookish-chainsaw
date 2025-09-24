@@ -30,6 +30,8 @@ const buildDocument = () => {
   register("#highlights-list", new MockElement("ul", document));
   register("#highlights-context", new MockElement("span", document));
   register("#meetings-list", new MockElement("ul", document));
+  register("#department-summary", new MockElement("p", document));
+  register("#department-summary-card", new MockElement("section", document));
   register("#data-warnings", new MockElement("aside", document));
   register("#reporting-period", new MockElement("span", document));
   register("#last-updated", new MockElement("span", document));
@@ -64,4 +66,39 @@ test("validation provides sane fallbacks", () => {
   assert.ok(result.warnings.length > 0, "warnings should be emitted for incomplete data");
   assert.equal(result.departments[0].metrics.length, 0);
   assert.equal(result.meta.reportingPeriod, "Not specified");
+});
+
+test("loadDataset applies new snapshot and preserves selection where possible", () => {
+  const document = buildDocument();
+  const controller = createDashboard(document, dataset);
+
+  const select = document.querySelector("#department-select");
+  select.value = dataset.departments[0].id;
+
+  const newDataset = {
+    meta: {
+      reportingPeriod: "Week 20 · 2024",
+      lastUpdated: "Manual import · May 12, 2024",
+      refreshGuidance: "Test guidance"
+    },
+    departments: [
+      {
+        id: "demo",
+        name: "Demo Department",
+        summary: "Summary copy for demo dataset.",
+        metrics: [],
+        trend: { context: "", datapoints: [] },
+        projects: { context: "", items: [] },
+        highlights: { context: "", items: [] },
+        meetings: []
+      }
+    ]
+  };
+
+  controller.loadDataset(newDataset);
+
+  assert.equal(document.querySelector("#reporting-period").textContent, "Week 20 · 2024");
+  assert.equal(document.querySelector("#department-summary").textContent, "Summary copy for demo dataset.");
+  assert.equal(select.value, "demo");
+  controller.teardown();
 });
