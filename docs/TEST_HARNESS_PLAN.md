@@ -1,7 +1,7 @@
 # Dashboard Test Harness Plan
 
 This document outlines how to introduce a lightweight automated test harness so UI and data
-changes to the Workplace Operations Dashboard can be validated before every release. The
+changes to the Industrial Maintenance Dashboard can be validated before every release. The
 approach favours minimal tooling, fast feedback, and tests that reflect how real users see the
 dashboard.
 

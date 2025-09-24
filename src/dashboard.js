@@ -2,6 +2,7 @@ import { formatValue } from "./utils/format.js";
 import { validateDataset } from "./validation.js";
 
 const MIN_BAR_HEIGHT = 8;
+const DASHBOARD_TITLE = "Industrial Maintenance Dashboard";
 
 const requireElement = (documentRef, selector, description) => {
   const element = documentRef.querySelector(selector);
@@ -208,6 +209,12 @@ export const createDashboard = (documentRef, rawDataset) => {
     highlightsList: requireElement(documentRef, "#highlights-list", "highlights list"),
     highlightsContext: requireElement(documentRef, "#highlights-context", "highlights context"),
     meetingsList: requireElement(documentRef, "#meetings-list", "meetings list"),
+    departmentSummary: requireElement(documentRef, "#department-summary", "department summary"),
+    departmentSummaryCard: requireElement(
+      documentRef,
+      "#department-summary-card",
+      "department summary container"
+    ),
     dataWarnings: requireElement(documentRef, "#data-warnings", "warnings region"),
     reportingPeriod: requireElement(documentRef, "#reporting-period", "reporting period field"),
     lastUpdated: requireElement(documentRef, "#last-updated", "last updated field"),
@@ -216,11 +223,12 @@ export const createDashboard = (documentRef, rawDataset) => {
     trendToggle: requireElement(documentRef, "#trend-toggle", "trend toggle button")
   };
 
-  const dataset = validateDataset(rawDataset);
   const state = {
     view: "chart",
-    departments: dataset.departments,
-    warnings: dataset.warnings
+    departments: [],
+    warnings: [],
+    meta: { reportingPeriod: "", lastUpdated: "", refreshGuidance: "" },
+    selectedDepartmentId: null
   };
 
   const setView = (view) => {
@@ -230,13 +238,41 @@ export const createDashboard = (documentRef, rawDataset) => {
     elements.trendToggle.textContent = view === "table" ? "View chart" : "View table";
   };
 
+  const setSummary = (summaryText) => {
+    if (summaryText && summaryText.trim().length > 0) {
+      elements.departmentSummary.textContent = summaryText;
+      elements.departmentSummaryCard.dataset.state = "ready";
+    } else {
+      elements.departmentSummary.textContent = "No summary available for this department.";
+      elements.departmentSummaryCard.dataset.state = "empty";
+    }
+  };
+
   const renderDepartment = (deptId) => {
-    const department = state.departments.find((item) => item.id === deptId) ?? state.departments[0];
+    const department = deptId
+      ? state.departments.find((item) => item.id === deptId)
+      : state.departments[0];
+
     if (!department) {
+      state.selectedDepartmentId = null;
+      elements.departmentSelect.value = "";
+      documentRef.title = DASHBOARD_TITLE;
+      clearElement(elements.statsGrid);
+      elements.trendContext.textContent = "";
+      clearElement(elements.trendChart);
+      elements.trendChart.dataset.empty = "true";
+      elements.trendChart.textContent = "Trend data unavailable for this department.";
+      clearElement(elements.trendTableBody);
+      clearElement(elements.projectsList);
+      clearElement(elements.highlightsList);
+      clearElement(elements.meetingsList);
+      setSummary("");
       return;
     }
 
-    documentRef.title = `${department.name} · Workplace Operations Dashboard`;
+    state.selectedDepartmentId = department.id;
+    elements.departmentSelect.value = department.id;
+    documentRef.title = `${department.name} · ${DASHBOARD_TITLE}`;
     renderStats(documentRef, elements.statsGrid, department.metrics);
     elements.trendContext.textContent = department.trend.context || "";
     renderTrendChart(documentRef, elements.trendChart, department.trend.datapoints);
@@ -250,14 +286,18 @@ export const createDashboard = (documentRef, rawDataset) => {
     );
     elements.highlightsContext.textContent = department.highlights.context || "";
     renderMeetings(elements.meetingsList, department.meetings);
+    setSummary(department.summary);
   };
 
-  const populateDepartmentSelect = () => {
+  const populateDepartmentSelect = (selectedId) => {
     clearElement(elements.departmentSelect);
     state.departments.forEach((dept) => {
       const option = documentRef.createElement("option");
       option.value = dept.id;
       option.textContent = dept.name;
+      if (selectedId && dept.id === selectedId) {
+        option.selected = true;
+      }
       elements.departmentSelect.append(option);
     });
   };
@@ -270,22 +310,40 @@ export const createDashboard = (documentRef, rawDataset) => {
     setView(state.view === "chart" ? "table" : "chart");
   };
 
-  const boot = () => {
+  const applyDataset = (validatedDataset, { requestedDepartmentId } = {}) => {
+    state.departments = validatedDataset.departments;
+    state.warnings = validatedDataset.warnings;
+    state.meta = validatedDataset.meta;
+
     renderWarnings(elements.dataWarnings, state.warnings, documentRef);
-    populateDepartmentSelect();
 
-    elements.reportingPeriod.textContent = dataset.meta.reportingPeriod;
-    elements.lastUpdated.textContent = dataset.meta.lastUpdated;
-    elements.refreshGuidance.textContent = dataset.meta.refreshGuidance;
+    elements.reportingPeriod.textContent = state.meta.reportingPeriod;
+    elements.lastUpdated.textContent = state.meta.lastUpdated;
+    elements.refreshGuidance.textContent = state.meta.refreshGuidance;
 
+    const preservedSelection = requestedDepartmentId &&
+      state.departments.some((dept) => dept.id === requestedDepartmentId)
+      ? requestedDepartmentId
+      : state.selectedDepartmentId &&
+          state.departments.some((dept) => dept.id === state.selectedDepartmentId)
+        ? state.selectedDepartmentId
+        : state.departments[0]?.id ?? null;
+
+    populateDepartmentSelect(preservedSelection ?? undefined);
+
+    if (preservedSelection) {
+      renderDepartment(preservedSelection);
+    } else {
+      renderDepartment(null);
+    }
+  };
+
+  const boot = () => {
     elements.departmentSelect.addEventListener("change", handleDepartmentChange);
     elements.trendToggle.addEventListener("click", handleToggleView);
 
-    const defaultDept = state.departments[0];
-    if (defaultDept) {
-      elements.departmentSelect.value = defaultDept.id;
-      renderDepartment(defaultDept.id);
-    }
+    const initialDataset = validateDataset(rawDataset);
+    applyDataset(initialDataset);
     setView("chart");
   };
 
@@ -294,6 +352,11 @@ export const createDashboard = (documentRef, rawDataset) => {
   return {
     renderDepartment,
     setView,
+    loadDataset: (nextDataset) => {
+      const validated = validateDataset(nextDataset);
+      applyDataset(validated, { requestedDepartmentId: elements.departmentSelect.value });
+      return validated;
+    },
     getState: () => ({ ...state }),
     teardown: () => {
       elements.departmentSelect.removeEventListener("change", handleDepartmentChange);

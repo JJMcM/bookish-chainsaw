@@ -11,11 +11,9 @@ mkdir -p "$DIST"
 FILES=(
   index.html
   assets
-  docs
   src
-  scripts
   README.md
-  package.json
+  docs/data-contract.md
 )
 
 tar -czf "$ARCHIVE" -C "$ROOT" "${FILES[@]}"

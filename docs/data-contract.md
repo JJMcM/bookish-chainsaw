@@ -61,11 +61,14 @@ interface ListItem {
 1. Update the meta block with the period and timestamp that correspond to the exported data.
 2. Replace the department array with the latest metrics and narratives from your systems.
 3. Run `npm run check` to let the offline validators confirm the structure is sound.
-4. Commit the updated `src/data.js` and regenerate the offline bundle with `npm run package`.
+4. Either:
+   * Import the JSON payload directly through the dashboard’s **Import offline data snapshot**
+     control, or
+   * Commit the updated `src/data.js` and regenerate the offline bundle with `npm run package`.
 
 ## Validation behaviour
 
 If optional fields are missing or arrays are empty, the UI falls back to friendly placeholder
-copy and the warnings banner displays the issues detected during boot. Validation never throws
-away data—it sanitises inputs to the closest safe defaults so the dashboard remains usable
-while surfacing problems for follow-up.
+copy and the warnings banner displays the issues detected during boot or import. Validation
+never throws away data—it sanitises inputs to the closest safe defaults so the dashboard remains
+usable while surfacing problems for follow-up.

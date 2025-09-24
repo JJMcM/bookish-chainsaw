@@ -1,6 +1,6 @@
-# Workplace Operations Dashboard Onboarding Guide
+# Industrial Maintenance Dashboard Onboarding Guide
 
-Welcome to the Workplace Operations Dashboard project! This guide gives newcomers a
+Welcome to the Industrial Maintenance Dashboard project! This guide gives newcomers a
 quick orientation to the codebase, explains how data flows through the application,
 and highlights next areas to explore as you start contributing.
 
@@ -53,8 +53,9 @@ installation required—opening `index.html` in a modern browser will execute th
    * Drives the warnings banner and meta badges so data issues are surfaced to operators.
 
 5. **Entry point (`src/main.js`)**
-   * Imports the compiled `dataset` and simply calls `createDashboard(document, dataset)`.
-   * The minimal shell keeps browser code lean and maximises reusability in tests.
+   * Imports the compiled `dataset`, boots the dashboard, and listens for offline JSON imports.
+   * When an operator selects a file, the controller validates and applies the new snapshot
+     without reloading the page.
 
 6. **Validation layer (`src/validation.js`)**
    * Normalises any shape mismatches in the dataset so the UI never crashes on malformed
@@ -80,17 +81,17 @@ section and rebuilds the markup based on the new data set.
 * **Accessibility considerations** – Live regions, toggle controls, and chart fallbacks
   ensure the UI remains usable with assistive tech. Mirror this approach when adding
   features (e.g., always provide text alternatives and keyboard interactions).
-* **Offline guardrails** – The CSS and scripts lint checks guarantee no remote resources
-  are referenced. When adding assets, keep everything locally resolvable.
+* **Offline guardrails** – CSS validation and the offline assets test guarantee no remote
+  resources are referenced. When adding assets, keep everything locally resolvable.
 
 ## Suggested Next Steps for Contributors
 
 1. **Strengthen test coverage** – Expand the custom harness or integrate a headless
    browser to capture keyboard interaction flows and accessibility audits.
-2. **Build an offline data ingestion CLI** – Script the transformation from CSV/JSON
-   exports into the `dataset` module so updates remain reproducible.
-3. **Refine visual theming** – Consider theming hooks (e.g., CSS custom property overrides)
+2. **Refine visual theming** – Consider theming hooks (e.g., CSS custom property overrides)
    so downstream teams can reskin without editing component styles.
+3. **Expand offline data tooling** – If analysts prefer command-line workflows, add a helper
+   that converts CMMS exports into `src/data.js` to complement the runtime importer.
 4. **Explore print/export views** – An offline PDF or printable layout helps share
    snapshots during reviews in disconnected environments.
 5. **Codify contribution workflows** – Document branching, code review expectations, and
