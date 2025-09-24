@@ -18,6 +18,10 @@ class MockStyle {
   getPropertyValue(name) {
     return this.properties.get(name) ?? "";
   }
+
+  removeProperty(name) {
+    this.properties.delete(name);
+  }
 }
 
 class MockElement {
@@ -73,86 +77,82 @@ class MockElement {
   }
 
   addEventListener(type, handler) {
-    this.listeners.set(type, handler);
+    if (!this.listeners.has(type)) {
+      this.listeners.set(type, new Set());
+    }
+    this.listeners.get(type).add(handler);
   }
 
   removeEventListener(type, handler) {
-    if (!handler) {
-      this.listeners.delete(type);
-      return;
-    }
-    const current = this.listeners.get(type);
-    if (current === handler) {
-      this.listeners.delete(type);
-    }
+    this.listeners.get(type)?.delete(handler);
   }
 
   dispatchEvent(event) {
-    const handler = this.listeners.get(event.type);
-    if (handler) {
-      handler.call(this, event);
+    const handlers = this.listeners.get(event.type);
+    if (!handlers) {
+      return false;
     }
+    handlers.forEach((handler) => handler(event));
+    return true;
   }
 
-  set innerHTML(value) {
-    this.children = [];
-    this._textContent = value;
+  get firstChild() {
+    return this.children[0] ?? null;
   }
 
-  get innerHTML() {
-    if (this.children.length) {
-      return this.children.map((child) => child.textContent ?? "").join("");
+  get textContent() {
+    if (this.children.length === 0) {
+      return this._textContent;
     }
-    return this._textContent;
+    return this.children
+      .map((child) => (child.nodeType === 3 ? child.textContent : child.textContent))
+      .join("");
   }
 
   set textContent(value) {
     this.children = [];
-    this._textContent = value;
+    this._textContent = String(value ?? "");
   }
 
-  get textContent() {
-    if (this.children.length) {
-      return this.children
-        .map((child) => (child.nodeType === 3 ? child.textContent : child.textContent))
-        .join("");
+  get innerHTML() {
+    return this.children.map((child) => child.textContent ?? "").join("");
+  }
+
+  set innerHTML(value) {
+    this.children = [];
+    if (value) {
+      this.appendChild(String(value));
     }
-    return this._textContent;
   }
 }
 
-export const createMockDocument = () => {
-  const elements = new Map();
+class MockDocument {
+  constructor() {
+    this.elements = new Map();
+    this.body = new MockElement("body", this);
+    this.documentElement = new MockElement("html", this);
+    this.title = "";
+  }
 
-  const documentElement = new MockElement("html", null);
+  register(selector, element) {
+    this.elements.set(selector, element);
+    element.ownerDocument = this;
+    return element;
+  }
 
-  const document = {
-    title: "",
-    documentElement,
-    register(selector, element) {
-      element.ownerDocument = document;
-      elements.set(selector, element);
-      return element;
-    },
-    querySelector(selector) {
-      return elements.get(selector) ?? null;
-    },
-    createElement(tag) {
-      return new MockElement(tag, document);
-    },
-    createTextNode(text) {
-      return new MockTextNode(text, document);
-    },
-    defaultView: {
-      getComputedStyle() {
-        return { getPropertyValue: () => "" };
-      }
-    }
-  };
+  querySelector(selector) {
+    return this.elements.get(selector) ?? null;
+  }
 
-  documentElement.ownerDocument = document;
+  createElement(tagName) {
+    return new MockElement(tagName, this);
+  }
 
-  return document;
-};
+  createTextNode(text) {
+    return new MockTextNode(text, this);
+  }
+}
 
-export { MockElement, MockStyle };
+export { MockDocument, MockElement, MockTextNode, MockStyle };
+
+export const createMockDocument = () => new MockDocument();

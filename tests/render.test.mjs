@@ -30,6 +30,8 @@ const buildDocument = () => {
   register("#highlights-list", new MockElement("ul", document));
   register("#highlights-context", new MockElement("span", document));
   register("#meetings-list", new MockElement("ul", document));
+  register("#department-summary", new MockElement("p", document));
+  register("#department-summary-card", new MockElement("section", document));
   register("#data-warnings", new MockElement("aside", document));
   register("#reporting-period", new MockElement("span", document));
   register("#last-updated", new MockElement("span", document));
@@ -81,4 +83,41 @@ test("theme tokens are applied to the document root", () => {
 
   const backgroundToken = document.documentElement.style.getPropertyValue("--color-background");
   assert.equal(backgroundToken, "#101820");
+  const fontToken = document.documentElement.style.getPropertyValue("--font-family-base");
+  assert.equal(fontToken, '"Atkinson Hyperlegible", sans-serif');
+});
+
+test("loadDataset applies new snapshot and preserves selection where possible", () => {
+  const document = buildDocument();
+  const controller = createDashboard(document, dataset);
+
+  const select = document.querySelector("#department-select");
+  select.value = dataset.departments[0].id;
+
+  const newDataset = {
+    meta: {
+      reportingPeriod: "Week 20 · 2024",
+      lastUpdated: "Manual import · May 12, 2024",
+      refreshGuidance: "Test guidance"
+    },
+    departments: [
+      {
+        id: "demo",
+        name: "Demo Department",
+        summary: "Summary copy for demo dataset.",
+        metrics: [],
+        trend: { context: "", datapoints: [] },
+        projects: { context: "", items: [] },
+        highlights: { context: "", items: [] },
+        meetings: []
+      }
+    ]
+  };
+
+  controller.loadDataset(newDataset);
+
+  assert.equal(document.querySelector("#reporting-period").textContent, "Week 20 · 2024");
+  assert.equal(document.querySelector("#department-summary").textContent, "Summary copy for demo dataset.");
+  assert.equal(select.value, "demo");
+  controller.teardown();
 });

@@ -21,6 +21,7 @@ FILES=(
   scripts
   README.md
   package.json
+  package-lock.json
 )
 
 tar -czf "$ARCHIVE" -C "$ROOT" "${FILES[@]}"

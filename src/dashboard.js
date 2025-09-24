@@ -2,6 +2,7 @@ import { formatValue } from "./utils/format.js";
 import { validateDataset } from "./validation.js";
 
 const MIN_BAR_HEIGHT = 8;
+const DASHBOARD_TITLE = "Industrial Maintenance Dashboard";
 
 const requireElement = (documentRef, selector, description) => {
   const element = documentRef.querySelector(selector);
@@ -17,18 +18,24 @@ const clearElement = (element) => {
   }
 };
 
-const applyThemeTokens = (documentRef, theme) => {
-  if (!theme || !theme.cssVariables) {
-    return;
-  }
-
+const applyThemeTokens = (documentRef, theme, appliedVars) => {
   const root = documentRef.documentElement;
   if (!root || !root.style || typeof root.style.setProperty !== "function") {
     return;
   }
 
+  appliedVars.forEach((name) => {
+    root.style.removeProperty(name);
+  });
+  appliedVars.clear();
+
+  if (!theme || !theme.cssVariables) {
+    return;
+  }
+
   Object.entries(theme.cssVariables).forEach(([name, value]) => {
     root.style.setProperty(name, value);
+    appliedVars.add(name);
   });
 };
 
@@ -151,7 +158,8 @@ const renderTrendChart = (documentRef, chart, datapoints) => {
     bar.className = "trend-chart__bar";
     bar.dataset.label = point.label;
 
-    const height = maxValue === 0 ? MIN_BAR_HEIGHT : Math.max((point.value / maxValue) * 100, MIN_BAR_HEIGHT);
+    const height =
+      maxValue === 0 ? MIN_BAR_HEIGHT : Math.max((point.value / maxValue) * 100, MIN_BAR_HEIGHT);
     bar.style.height = `${height}%`;
 
     const value = documentRef.createElement("span");
@@ -228,15 +236,23 @@ export const createDashboard = (documentRef, rawDataset) => {
     lastUpdated: requireElement(documentRef, "#last-updated", "last updated field"),
     refreshGuidance: requireElement(documentRef, "#refresh-guidance", "refresh guidance field"),
     trendContainer: requireElement(documentRef, ".trend", "trend container"),
-    trendToggle: requireElement(documentRef, "#trend-toggle", "trend toggle button")
+    trendToggle: requireElement(documentRef, "#trend-toggle", "trend toggle button"),
+    departmentSummary: requireElement(documentRef, "#department-summary", "department summary"),
+    departmentSummaryCard: requireElement(
+      documentRef,
+      "#department-summary-card",
+      "department summary card"
+    )
   };
 
-  const dataset = validateDataset(rawDataset);
-  applyThemeTokens(documentRef, dataset.theme);
+  const appliedThemeVariables = new Set();
+
   const state = {
     view: "chart",
-    departments: dataset.departments,
-    warnings: dataset.warnings
+    departments: [],
+    warnings: [],
+    meta: { reportingPeriod: "", lastUpdated: "", refreshGuidance: "" },
+    selectedDepartmentId: null
   };
 
   const setView = (view) => {
@@ -246,13 +262,41 @@ export const createDashboard = (documentRef, rawDataset) => {
     elements.trendToggle.textContent = view === "table" ? "View chart" : "View table";
   };
 
+  const setSummary = (summaryText) => {
+    if (summaryText && summaryText.trim().length > 0) {
+      elements.departmentSummary.textContent = summaryText;
+      elements.departmentSummaryCard.dataset.state = "ready";
+    } else {
+      elements.departmentSummary.textContent = "No summary available for this department.";
+      elements.departmentSummaryCard.dataset.state = "empty";
+    }
+  };
+
   const renderDepartment = (deptId) => {
-    const department = state.departments.find((item) => item.id === deptId) ?? state.departments[0];
+    const department = deptId
+      ? state.departments.find((item) => item.id === deptId)
+      : state.departments[0];
+
     if (!department) {
+      state.selectedDepartmentId = null;
+      elements.departmentSelect.value = "";
+      documentRef.title = DASHBOARD_TITLE;
+      clearElement(elements.statsGrid);
+      elements.trendContext.textContent = "";
+      clearElement(elements.trendChart);
+      elements.trendChart.dataset.empty = "true";
+      elements.trendChart.textContent = "Trend data unavailable for this department.";
+      clearElement(elements.trendTableBody);
+      clearElement(elements.projectsList);
+      clearElement(elements.highlightsList);
+      clearElement(elements.meetingsList);
+      setSummary("");
       return;
     }
 
-    documentRef.title = `${department.name} · Workplace Operations Dashboard`;
+    state.selectedDepartmentId = department.id;
+    elements.departmentSelect.value = department.id;
+    documentRef.title = `${department.name} · ${DASHBOARD_TITLE}`;
     renderStats(documentRef, elements.statsGrid, department.metrics);
     elements.trendContext.textContent = department.trend.context || "";
     renderTrendChart(documentRef, elements.trendChart, department.trend.datapoints);
@@ -266,14 +310,18 @@ export const createDashboard = (documentRef, rawDataset) => {
     );
     elements.highlightsContext.textContent = department.highlights.context || "";
     renderMeetings(elements.meetingsList, department.meetings);
+    setSummary(department.summary);
   };
 
-  const populateDepartmentSelect = () => {
+  const populateDepartmentSelect = (selectedId) => {
     clearElement(elements.departmentSelect);
     state.departments.forEach((dept) => {
       const option = documentRef.createElement("option");
       option.value = dept.id;
       option.textContent = dept.name;
+      if (selectedId && dept.id === selectedId) {
+        option.selected = true;
+      }
       elements.departmentSelect.append(option);
     });
   };
@@ -286,22 +334,41 @@ export const createDashboard = (documentRef, rawDataset) => {
     setView(state.view === "chart" ? "table" : "chart");
   };
 
-  const boot = () => {
+  const applyDataset = (validatedDataset, { requestedDepartmentId } = {}) => {
+    state.departments = validatedDataset.departments;
+    state.warnings = validatedDataset.warnings;
+    state.meta = validatedDataset.meta;
+
+    applyThemeTokens(documentRef, validatedDataset.theme, appliedThemeVariables);
     renderWarnings(elements.dataWarnings, state.warnings, documentRef);
-    populateDepartmentSelect();
 
-    elements.reportingPeriod.textContent = dataset.meta.reportingPeriod;
-    elements.lastUpdated.textContent = dataset.meta.lastUpdated;
-    elements.refreshGuidance.textContent = dataset.meta.refreshGuidance;
+    elements.reportingPeriod.textContent = state.meta.reportingPeriod;
+    elements.lastUpdated.textContent = state.meta.lastUpdated;
+    elements.refreshGuidance.textContent = state.meta.refreshGuidance;
 
+    const preservedSelection = requestedDepartmentId &&
+      state.departments.some((dept) => dept.id === requestedDepartmentId)
+      ? requestedDepartmentId
+      : state.selectedDepartmentId &&
+          state.departments.some((dept) => dept.id === state.selectedDepartmentId)
+        ? state.selectedDepartmentId
+        : state.departments[0]?.id ?? null;
+
+    populateDepartmentSelect(preservedSelection ?? undefined);
+
+    if (preservedSelection) {
+      renderDepartment(preservedSelection);
+    } else {
+      renderDepartment(null);
+    }
+  };
+
+  const boot = () => {
     elements.departmentSelect.addEventListener("change", handleDepartmentChange);
     elements.trendToggle.addEventListener("click", handleToggleView);
 
-    const defaultDept = state.departments[0];
-    if (defaultDept) {
-      elements.departmentSelect.value = defaultDept.id;
-      renderDepartment(defaultDept.id);
-    }
+    const initialDataset = validateDataset(rawDataset);
+    applyDataset(initialDataset);
     setView("chart");
   };
 
@@ -310,6 +377,11 @@ export const createDashboard = (documentRef, rawDataset) => {
   return {
     renderDepartment,
     setView,
+    loadDataset: (nextDataset) => {
+      const validated = validateDataset(nextDataset);
+      applyDataset(validated, { requestedDepartmentId: elements.departmentSelect.value });
+      return validated;
+    },
     getState: () => ({ ...state }),
     teardown: () => {
       elements.departmentSelect.removeEventListener("change", handleDepartmentChange);

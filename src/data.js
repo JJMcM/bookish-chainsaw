@@ -1,453 +1,360 @@
 export const dashboardMeta = {
-  reportingPeriod: "Week 32 · 2024",
-  lastUpdated: "Manual import · Aug 5, 2024 09:00",
-  refreshGuidance:
-    "Built for transparent operations. Import a new offline dataset to refresh the view."
+  reportingPeriod: "Maintenance Week 18 · 2024",
+  lastUpdated: "Manual import · May 6, 2024 06:30",
+  refreshGuidance: "Use the import control to load the latest CMMS export while offline."
 };
 
 export const departments = [
   {
     id: "all",
-    name: "All Departments",
-    summary: "Aggregate performance across operations, engineering, people, and workplace teams.",
+    name: "All Maintenance",
+    summary:
+      "Crew leaders kept preventive work on pace while trimming the emergency backlog. Reliability and safety partners are aligned on the boiler upgrade cutover slated for next week.",
     metrics: [
       {
-        label: "Projects On Track",
-        value: 18,
-        suffix: "/ 22",
-        trend: { label: "↑ 3", description: "vs last week" }
-      },
-      {
-        label: "Team Health Score",
-        value: 8.7,
-        suffix: "/ 10",
-        trend: { label: "↗ 0.4", description: "steady improvement" }
-      },
-      {
-        label: "Average Cycle Time",
-        value: 4.2,
-        suffix: " days",
-        trend: { label: "↓ 0.5", description: "faster than target" }
-      },
-      {
-        label: "Office Utilization",
-        value: 68,
+        label: "Preventive Compliance",
+        value: 92,
         suffix: "%",
-        trend: { label: "↑ 6", description: "after new seating plan" }
+        trend: { label: "↑ 4", description: "after planner stand-up reset routes" }
+      },
+      {
+        label: "Reactive Backlog",
+        value: 38,
+        suffix: " WO",
+        trend: { label: "↓ 11", description: "cleared weekend callouts" }
+      },
+      {
+        label: "Critical Asset Availability",
+        value: 97.5,
+        suffix: "%",
+        trend: { label: "↗ 0.8", description: "boiler redundancy restored" }
+      },
+      {
+        label: "Safety Observations Logged",
+        value: 54,
+        trend: { label: "↑ 12", description: "crew-led audits" }
       }
     ],
     trend: {
-      context: "Story points delivered across all teams",
+      context: "Work orders closed per day across the site",
       datapoints: [
-        { label: "Mon", value: 54 },
-        { label: "Tue", value: 62 },
-        { label: "Wed", value: 71 },
-        { label: "Thu", value: 64 },
-        { label: "Fri", value: 78 },
-        { label: "Sat", value: 46 },
-        { label: "Sun", value: 38 }
+        { label: "Mon", value: 46 },
+        { label: "Tue", value: 58 },
+        { label: "Wed", value: 62 },
+        { label: "Thu", value: 57 },
+        { label: "Fri", value: 69 },
+        { label: "Sat", value: 34 },
+        { label: "Sun", value: 28 }
       ]
     },
     projects: {
-      context: "Top initiatives with the biggest operational impact",
+      context: "Plant-wide initiatives with executive visibility",
       items: [
         {
-          title: "Hybrid Work Enablement",
-          subtitle: "Deploy desk booking analytics to refine occupancy targets",
-          meta: "Phase 2 · 76% complete"
+          title: "Boiler Feedwater Retrofit",
+          subtitle: "Stage spare pump, perform insulation, and validate vibration limits",
+          meta: "Cutover window May 10"
         },
         {
-          title: "Incident Response Playbooks",
-          subtitle: "Cross-functional tabletop run-through with leadership",
-          meta: "Pilot sessions wrap Friday"
+          title: "Planner Playbook Rollout",
+          subtitle: "Standardise job plan templates and estimated hours across crews",
+          meta: "75% adoption"
         },
         {
-          title: "Benefits Enrollment Refresh",
-          subtitle: "Coordinated HR + Finance comms and knowledge base articles",
-          meta: "Launch comms Tuesday"
-        }
-      ]
-    },
-    highlights: {
-      context: "Wins and risks surfaced in leadership sync",
-      items: [
-        {
-          title: "Engineering shipped the deployment guardrails ahead of schedule",
-          subtitle: "Early telemetry shows 32% fewer rollbacks",
-          meta: "Reliability"
-        },
-        {
-          title: "Facilities resolved HVAC drift in the north annex",
-          subtitle: "Comfort scores climbed 12 points overnight",
-          meta: "Environment"
-        },
-        {
-          title: "People Ops onboarding cohort reached 95% satisfaction",
-          subtitle: "New check-in template surfaced friction points earlier",
-          meta: "People"
-        }
-      ]
-    },
-    meetings: [
-      {
-        title: "Operations Council",
-        description: "Weekly alignment on department OKRs",
-        time: "Monday · 9:00 – 10:00"
-      },
-      {
-        title: "Workplace Experience Deep Dive",
-        description: "Final seating map review for Q4",
-        time: "Tuesday · 14:30 – 15:15"
-      },
-      {
-        title: "People Ops Pulse",
-        description: "Review sentiment survey themes",
-        time: "Thursday · 11:00 – 11:45"
-      }
-    ]
-  },
-  {
-    id: "ops",
-    name: "Operations",
-    summary: "Ensuring end-to-end processes remain resilient and measurable.",
-    metrics: [
-      {
-        label: "On-Time Deliveries",
-        value: 96,
-        suffix: "%",
-        trend: { label: "↑ 2", description: "after vendor workshop" }
-      },
-      {
-        label: "Escalations",
-        value: 3,
-        suffix: " open",
-        trend: { label: "↓ 1", description: "major incidents resolved" }
-      },
-      {
-        label: "Budget Burn",
-        value: 51,
-        suffix: "%",
-        trend: { label: "↔", description: "mid-quarter" }
-      },
-      {
-        label: "Automation Coverage",
-        value: 64,
-        suffix: "%",
-        trend: { label: "↑ 8", description: "three new playbooks" }
-      }
-    ],
-    trend: {
-      context: "Fulfillment cycle time (hours per request)",
-      datapoints: [
-        { label: "Mon", value: 5.1 },
-        { label: "Tue", value: 4.8 },
-        { label: "Wed", value: 4.3 },
-        { label: "Thu", value: 4.6 },
-        { label: "Fri", value: 3.9 },
-        { label: "Sat", value: 4.4 },
-        { label: "Sun", value: 4.2 }
-      ]
-    },
-    projects: {
-      context: "Process optimizations nearing completion",
-      items: [
-        {
-          title: "Vendor SLA Dashboard",
-          subtitle: "Unified uptime visibility across logistics partners",
-          meta: "Go-live Friday"
-        },
-        {
-          title: "Auto-Renewal Policy",
-          subtitle: "Legal + Ops review to trim manual paperwork",
+          title: "Lockout/Tagout Refresh",
+          subtitle: "Audit panels and update laminated field guides",
           meta: "Sign-off pending"
         }
       ]
     },
     highlights: {
-      context: "Signals from the operations command center",
+      context: "Wins and watch items from the maintenance program review",
       items: [
         {
-          title: "Escalation runbook adoption hit 92% compliance",
-          subtitle: "Team ran two successful failover drills",
-          meta: "Operational Excellence"
+          title: "Oil analysis flagged bearing wear early",
+          subtitle: "Scheduled downtime avoided a 14-hour production stop",
+          meta: "Predictive"
         },
         {
-          title: "Warehouse IoT rollout expanded to 3 new sites",
-          subtitle: "Cycle time variance cut by 18%",
-          meta: "Automation"
+          title: "Confined space drill executed under target time",
+          subtitle: "EHS observers signed off on updated rescue kit staging",
+          meta: "Safety"
+        },
+        {
+          title: "Warehouse kitting achieved 98% accuracy",
+          subtitle: "Mechanics spent 40 fewer hours searching for parts",
+          meta: "Materials"
         }
       ]
     },
     meetings: [
       {
-        title: "Logistics Vendor Sync",
-        description: "Spot-check SLA performance",
-        time: "Wednesday · 13:00 – 13:45"
+        title: "Maintenance Readiness Huddle",
+        description: "Review daily crew assignments and plant constraints",
+        time: "Monday · 06:30 – 07:00"
       },
       {
-        title: "Quarterly Risk Review",
-        description: "Scenario modeling for peak season",
-        time: "Friday · 10:30 – 12:00"
+        title: "Reliability Steering Committee",
+        description: "Align on PdM alerts and risk-ranked assets",
+        time: "Wednesday · 11:30 – 12:15"
+      },
+      {
+        title: "Safety Walkdown",
+        description: "Cross-discipline review of boiler deck mitigations",
+        time: "Friday · 09:00 – 10:00"
       }
     ]
   },
   {
-    id: "eng",
-    name: "Engineering",
-    summary: "Delivering reliable product increments and platform improvements.",
+    id: "mechanical",
+    name: "Mechanical",
+    summary:
+      "Focus stayed on rotating equipment reliability and clearing overdue lubrication work. Gearbox rebuild prep is tracking, but alignment checks need extra support on second shift.",
     metrics: [
       {
-        label: "Deployment Success",
-        value: 99.1,
-        suffix: "%",
-        trend: { label: "↑ 1.2", description: "release guardrails live" }
-      },
-      {
-        label: "Velocity",
-        value: 420,
-        suffix: " pts",
-        trend: { label: "↑ 28", description: "productive spike" }
-      },
-      {
-        label: "Open Bugs",
-        value: 47,
-        suffix: "",
-        trend: { label: "↓ 12", description: "triage blitz" }
-      },
-      {
-        label: "Incident MTTR",
-        value: 42,
-        suffix: " mins",
-        trend: { label: "↓ 9", description: "faster mitigations" }
-      }
-    ],
-    trend: {
-      context: "Story points completed per day",
-      datapoints: [
-        { label: "Mon", value: 68 },
-        { label: "Tue", value: 74 },
-        { label: "Wed", value: 82 },
-        { label: "Thu", value: 71 },
-        { label: "Fri", value: 89 },
-        { label: "Sat", value: 36 },
-        { label: "Sun", value: 28 }
-      ]
-    },
-    projects: {
-      context: "Focus areas for the platform team",
-      items: [
-        {
-          title: "Observability Unification",
-          subtitle: "Migrating service metrics into the shared timeline view",
-          meta: "84% complete"
-        },
-        {
-          title: "API Rate Guardrails",
-          subtitle: "Progressive throttling + customer comms",
-          meta: "ETA next sprint"
-        },
-        {
-          title: "Mobile Shell Refresh",
-          subtitle: "Final QA for new offline persistence",
-          meta: "Ship window Wednesday"
-        }
-      ]
-    },
-    highlights: {
-      context: "Notable engineering callouts",
-      items: [
-        {
-          title: "Launch readiness checklist adopted squad-wide",
-          subtitle: "Defects at launch dipped 22%",
-          meta: "Quality"
-        },
-        {
-          title: "Error budget trending within safe limits",
-          subtitle: "SLO burn-down recovered after patch",
-          meta: "Reliability"
-        }
-      ]
-    },
-    meetings: [
-      {
-        title: "Architecture Review Board",
-        description: "Sequence-based caching proposal",
-        time: "Tuesday · 16:00 – 17:00"
-      },
-      {
-        title: "Incident Game Day",
-        description: "Chaos workflow validation",
-        time: "Thursday · 15:00 – 16:30"
-      }
-    ]
-  },
-  {
-    id: "people",
-    name: "People Operations",
-    summary: "Supporting employee engagement, hiring velocity, and retention.",
-    metrics: [
-      {
-        label: "Hiring Pipeline",
-        value: 42,
-        suffix: " open reqs",
-        trend: { label: "↗ 4", description: "marketing pipeline expanding" }
-      },
-      {
-        label: "Time to Fill",
-        value: 27,
-        suffix: " days",
-        trend: { label: "↓ 3", description: "streamlined interviews" }
-      },
-      {
-        label: "Attrition",
-        value: 6.4,
-        suffix: "%",
-        trend: { label: "↘ 0.8", description: "lowest this year" }
-      },
-      {
-        label: "Pulse Score",
-        value: 8.9,
-        suffix: "/ 10",
-        trend: { label: "↑ 0.6", description: "new manager rituals" }
-      }
-    ],
-    trend: {
-      context: "Offer acceptance rate per weekday",
-      datapoints: [
-        { label: "Mon", value: 78 },
-        { label: "Tue", value: 82 },
-        { label: "Wed", value: 74 },
-        { label: "Thu", value: 76 },
-        { label: "Fri", value: 88 },
-        { label: "Sat", value: 0 },
-        { label: "Sun", value: 0 }
-      ]
-    },
-    projects: {
-      context: "Employee experience efforts in flight",
-      items: [
-        {
-          title: "Manager Toolkit 2.0",
-          subtitle: "Peer coaching, conflict resolution, and salary narrative",
-          meta: "Workshop sprint this week"
-        },
-        {
-          title: "Global Onboarding Journey",
-          subtitle: "Localized benefits library launch",
-          meta: "Feedback review Friday"
-        }
-      ]
-    },
-    highlights: {
-      context: "Signals from the employee lifecycle",
-      items: [
-        {
-          title: "New hire NPS hit 76",
-          subtitle: "Welcome mentors credited for the lift",
-          meta: "Engagement"
-        },
-        {
-          title: "Benefits FAQ traffic tripled post campaign",
-          subtitle: "Self-serve answers reduced ticket queue by 18%",
-          meta: "Enablement"
-        }
-      ]
-    },
-    meetings: [
-      {
-        title: "Compensation Council",
-        description: "Finalize mid-year adjustments",
-        time: "Monday · 11:00 – 12:00"
-      },
-      {
-        title: "Talent Marketing Sync",
-        description: "Campaign retrospectives + next sprint",
-        time: "Wednesday · 15:30 – 16:15"
-      }
-    ]
-  },
-  {
-    id: "workplace",
-    name: "Workplace Experience",
-    summary: "Creating an environment where people do their best work.",
-    metrics: [
-      {
-        label: "Occupancy",
+        label: "Planned Work Ratio",
         value: 71,
         suffix: "%",
-        trend: { label: "↑ 5", description: "neighborhood pilot" }
+        trend: { label: "↑ 6", description: "better job kitting" }
       },
       {
-        label: "Support Tickets",
-        value: 18,
+        label: "Emergency Work Orders",
+        value: 4,
         suffix: " open",
-        trend: { label: "↘ 4", description: "self-serve kiosks live" }
+        trend: { label: "↓ 3", description: "stand-by millwright rotation" }
       },
       {
-        label: "Satisfaction",
-        value: 9.1,
-        suffix: "/ 10",
-        trend: { label: "↑ 0.7", description: "community activations" }
+        label: "Lubrication Compliance",
+        value: 88,
+        suffix: "%",
+        trend: { label: "↗ 5", description: "route consolidation complete" }
       },
       {
-        label: "Energy Use",
-        value: 84,
-        suffix: "% of baseline",
-        trend: { label: "↓ 6", description: "HVAC tuning complete" }
+        label: "Vibration Alerts",
+        value: 7,
+        trend: { label: "↘ 2", description: "bearing replacements landed" }
       }
     ],
     trend: {
-      context: "Daily foot traffic (badge entries)",
+      context: "Average repair duration (hours)",
       datapoints: [
-        { label: "Mon", value: 420 },
-        { label: "Tue", value: 468 },
-        { label: "Wed", value: 492 },
-        { label: "Thu", value: 476 },
-        { label: "Fri", value: 388 },
-        { label: "Sat", value: 160 },
-        { label: "Sun", value: 120 }
+        { label: "Mon", value: 5.6 },
+        { label: "Tue", value: 4.3 },
+        { label: "Wed", value: 4.8 },
+        { label: "Thu", value: 4.1 },
+        { label: "Fri", value: 3.9 },
+        { label: "Sat", value: 4.5 },
+        { label: "Sun", value: 4.0 }
       ]
     },
     projects: {
-      context: "Facilities improvements in focus",
+      context: "Mechanical priorities in execution",
       items: [
         {
-          title: "Wayfinding Refresh",
-          subtitle: "Install dynamic signage and floor beacons",
-          meta: "Installations ongoing"
+          title: "Press Line Gearbox Rebuild",
+          subtitle: "Stage laser alignment tools and inspect coupling",
+          meta: "Tear-down Saturday"
         },
         {
-          title: "Wellness Room Expansion",
-          subtitle: "Ergonomic upgrades and booking automation",
-          meta: "Contractor review Thursday"
+          title: "Boiler Feed Pump Exchange",
+          subtitle: "Prep spare pump base, align suction valves, and stage rigging",
+          meta: "Ready for outage"
         }
       ]
     },
     highlights: {
-      context: "Stories from the workplace experience team",
+      context: "Crew headlines and watch items",
       items: [
         {
-          title: "Community garden lunches filled every seat",
-          subtitle: "Employee chef program piloted successfully",
-          meta: "Engagement"
+          title: "Gearcase flush cut wear debris by 40%",
+          subtitle: "Oil sampling trending back inside targets",
+          meta: "Reliability"
         },
         {
-          title: "Air quality monitoring alerts now integrated",
-          subtitle: "Facilities team receives push notifications",
-          meta: "Safety"
+          title: "Rigging team completed pump changeout 6 hours early",
+          subtitle: "Overtime shaved for the weekend maintenance window",
+          meta: "Execution"
         }
       ]
     },
     meetings: [
       {
-        title: "Space Planning Huddle",
-        description: "Re-balance quiet vs collaborative zones",
-        time: "Tuesday · 10:00 – 10:45"
+        title: "Millwright Alignment Check-in",
+        description: "Confirm tooling availability and second-shift coverage",
+        time: "Tuesday · 14:00 – 14:30"
       },
       {
-        title: "Vendor Walkthrough",
-        description: "Review signage installation progress",
+        title: "Lubrication Route Review",
+        description: "Validate new merged routes and grease spec updates",
         time: "Thursday · 09:30 – 10:15"
+      }
+    ]
+  },
+  {
+    id: "electrical",
+    name: "Electrical",
+    summary:
+      "Crew zeroed out urgent breaker inspections and handed off arc-flash updates. Instrument tech backlog is steady; plan to free a floater for PLC work next week.",
+    metrics: [
+      {
+        label: "Preventive Tasks Completed",
+        value: 126,
+        trend: { label: "↑ 18", description: "panel inspections accelerated" }
+      },
+      {
+        label: "Priority Call-ins",
+        value: 6,
+        suffix: " events",
+        trend: { label: "↘ 2", description: "spare breaker cache paid off" }
+      },
+      {
+        label: "Thermography Exceptions",
+        value: 3,
+        trend: { label: "↘ 1", description: "load balancing resolved hot spots" }
+      },
+      {
+        label: "Control Room Coverage",
+        value: 96,
+        suffix: "%",
+        trend: { label: "↗ 3", description: "cross-training backfill" }
+      }
+    ],
+    trend: {
+      context: "Average hours to close electrical work orders",
+      datapoints: [
+        { label: "Mon", value: 6.1 },
+        { label: "Tue", value: 5.8 },
+        { label: "Wed", value: 5.4 },
+        { label: "Thu", value: 5.1 },
+        { label: "Fri", value: 4.8 },
+        { label: "Sat", value: 4.5 },
+        { label: "Sun", value: 4.2 }
+      ]
+    },
+    projects: {
+      context: "Electrical work in flight",
+      items: [
+        {
+          title: "Arc-Flash Study Refresh",
+          subtitle: "Finalize labels for boiler house and switchgear",
+          meta: "Labels printing"
+        },
+        {
+          title: "PLC Firmware Upgrades",
+          subtitle: "Schedule windows with production to flash controllers",
+          meta: "Round 1 complete"
+        }
+      ]
+    },
+    highlights: {
+      context: "Noteworthy outcomes",
+      items: [
+        {
+          title: "Breaker infrared scan caught loose lug early",
+          subtitle: "Avoided unplanned outage on kiln feeder",
+          meta: "Reliability"
+        },
+        {
+          title: "Instrument tech cross-training unlocked night shift coverage",
+          subtitle: "No open calls during weekend operations",
+          meta: "Staffing"
+        }
+      ]
+    },
+    meetings: [
+      {
+        title: "Electrical Work Coordination",
+        description: "Sequence planned line shutdowns and permit requests",
+        time: "Monday · 10:00 – 10:45"
+      },
+      {
+        title: "Controls Steering",
+        description: "Review PLC firmware schedule and automation requests",
+        time: "Thursday · 13:00 – 13:45"
+      }
+    ]
+  },
+  {
+    id: "reliability",
+    name: "Reliability",
+    summary:
+      "PdM coverage expanded to all boiler feed assets while analysts validated sensor drift. Outage prep is on pace but lube analysis turnaround needs attention.",
+    metrics: [
+      {
+        label: "Assets on PdM Routes",
+        value: 118,
+        trend: { label: "↑ 9", description: "new boiler feed pumps instrumented" }
+      },
+      {
+        label: "Condition Alerts Reviewed",
+        value: 27,
+        trend: { label: "↗ 5", description: "steam trap campaign generated findings" }
+      },
+      {
+        label: "Lube Lab Turnaround",
+        value: 4.5,
+        suffix: " days",
+        trend: { label: "↗ 1.2", description: "supplier backlog" }
+      },
+      {
+        label: "Ultrasound Routes Completed",
+        value: 86,
+        suffix: "%",
+        trend: { label: "↘ 6", description: "coverage shifted to outage prep" }
+      }
+    ],
+    trend: {
+      context: "Predictive findings validated per week",
+      datapoints: [
+        { label: "Mon", value: 9 },
+        { label: "Tue", value: 11 },
+        { label: "Wed", value: 12 },
+        { label: "Thu", value: 10 },
+        { label: "Fri", value: 8 },
+        { label: "Sat", value: 6 },
+        { label: "Sun", value: 4 }
+      ]
+    },
+    projects: {
+      context: "Reliability initiatives",
+      items: [
+        {
+          title: "Steam Trap Audit",
+          subtitle: "Instrument remaining traps and log follow-up work",
+          meta: "82% complete"
+        },
+        {
+          title: "Boiler Feed Upgrade Readiness",
+          subtitle: "Finalize sensor baselines and alarm thresholds",
+          meta: "Cutover support"
+        }
+      ]
+    },
+    highlights: {
+      context: "Program call-outs",
+      items: [
+        {
+          title: "Vibration alert prevented gearbox failure",
+          subtitle: "Maintenance swapped bearing before catastrophic damage",
+          meta: "PdM"
+        },
+        {
+          title: "Lube lab flagged varnish levels early",
+          subtitle: "Coordinated flush avoids production downtime",
+          meta: "Lubrication"
+        }
+      ]
+    },
+    meetings: [
+      {
+        title: "Reliability / Maintenance Sync",
+        description: "Review PdM findings and outage prep tasks",
+        time: "Wednesday · 15:00 – 16:00"
+      },
+      {
+        title: "Predictive Analytics Stand-up",
+        description: "Prioritise sensor tuning and alert reviews",
+        time: "Friday · 10:00 – 10:30"
       }
     ]
   }

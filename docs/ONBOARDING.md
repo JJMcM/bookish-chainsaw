@@ -1,13 +1,10 @@
-# Workplace Operations Dashboard Onboarding Guide
+# Industrial Maintenance Dashboard Onboarding Guide
 
-Welcome to the Workplace Operations Dashboard project! This guide gives newcomers a
-quick orientation to the codebase, explains how data flows through the application,
-and highlights next areas to explore as you start contributing.
+Welcome to the Industrial Maintenance Dashboard project! This guide gives newcomers a quick orientation to the codebase, explains how data flows through the application, and highlights next areas to explore as you start contributing.
 
 ## Repository Layout
 
-The project is intentionally lightweight—everything required to render the dashboard
-lives in a handful of files:
+The project is intentionally lightweight—everything required to render the dashboard lives in a handful of files:
 
 ```
 ├── index.html         # Semantic page shell and mount points
@@ -22,85 +19,57 @@ lives in a handful of files:
 └── tests/             # DOM harness, accessibility checks, and regression suites
 ```
 
-Because the site is completely static, there is no build tooling or dependency
-installation required—opening `index.html` in a modern browser will execute the app.
+Because the site is completely static, there is no build tooling or dependency installation required—opening `index.html` in a modern browser will execute the app.
 
 ## How the Dashboard Renders
 
 1. **HTML skeleton (`index.html`)**
    * Defines the structural regions (header, sidebar, content area, footer).
-   * Provides empty containers (`<section id="stats-grid">`, `<ul id="projects-list">`,
-     etc.) that JavaScript later populates with department-specific data.
+   * Provides empty containers (`<section id="stats-grid">`, `<ul id="projects-list">`, etc.) that JavaScript later populates with department-specific data.
    * Loads the stylesheet and the JavaScript entry point (`src/main.js`).
 
 2. **Styling layer (`assets/styles.css`)**
-   * Implements a responsive CSS grid layout so the dashboard adapts from desktop to
-     tablet widths.
-   * Encapsulates reusable component classes (cards, statistic tiles, lists, trend chart)
-     that the renderer applies when it constructs DOM elements.
-   * Sets the overall visual system: typography, color palette, shadows, and spacing.
+   * Implements a responsive CSS grid layout so the dashboard adapts from desktop to tablet widths.
+   * Encapsulates reusable component classes (cards, statistic tiles, lists, trend chart) that the renderer applies when it constructs DOM elements.
+   * Sets the overall visual system: typography, color palette, shadows, and spacing. Dataset-provided theme tokens can override these defaults when present.
 
 3. **Data module (`src/data.js`)**
-   * Exports `dashboardMeta`, `departments`, and `dashboardTheme`. Each department object
-     follows a consistent shape (metrics, trend, projects, highlights, meetings).
-   * Regenerate this file via `scripts/import-dataset.mjs` so offline CSV/JSON exports flow
-     through a single, validated pipeline. Pass `--fail-on-warning` when consuming real
-     exports so data quality issues block promotion.
+   * Exports `dashboardMeta`, `dashboardTheme`, and `departments`. Each department object follows a consistent shape (summary, metrics, trend, projects, highlights, meetings).
+   * Regenerate this file via `scripts/import-dataset.mjs` so offline CSV/JSON exports flow through a single, validated pipeline. Pass `--fail-on-warning` when consuming real exports so data quality issues block promotion.
 
 4. **Rendering controller (`src/dashboard.js`)**
    * Validates the dataset, stores warnings, and attaches DOM event handlers.
-   * Renders each section (stats, trend chart + table, lists, meetings) via focused helper
-     functions and exposes a `setView` method for toggling chart/table modes.
-   * Drives the warnings banner and meta badges so data issues are surfaced to operators.
+   * Renders each section (stats, trend chart + table, lists, meetings, narrative summary) via focused helper functions and exposes a `setView` method for toggling chart/table modes.
+   * Drives the warnings banner, meta badges, and theme application so data issues and styling overrides are surfaced to operators.
 
 5. **Entry point (`src/main.js`)**
-   * Imports the compiled `dataset` and simply calls `createDashboard(document, dataset)`.
-   * The minimal shell keeps browser code lean and maximises reusability in tests.
+   * Imports the compiled `dataset`, boots the dashboard, and listens for offline JSON imports.
+   * When an operator selects a file, the controller validates and applies the new snapshot without reloading the page.
 
 6. **Validation layer (`src/validation.js`)**
-   * Normalises any shape mismatches in the dataset so the UI never crashes on malformed
-     input.
+   * Normalises any shape mismatches in the dataset so the UI never crashes on malformed input.
    * Emits human-readable warnings that appear in the dashboard banner.
 
 7. **Testing harness (`tests/`)**
-   * Provides a bespoke mock DOM implementation so renderers can be exercised without
-     external libraries.
-   * Includes optional headless-browser coverage (Puppeteer + axe-core) to verify keyboard
-     flows and accessibility rules against the real HTML shell. Drop a portable Chromium
-     build on the workstation and reference it via `PUPPETEER_EXECUTABLE_PATH` to enable
-     the additional checks offline. The repository intentionally omits the Puppeteer
-     packages from `package.json`; fetch and stage them from an approved internal mirror if
-     you want those tests to execute.
+   * Provides a bespoke mock DOM implementation so renderers can be exercised without external libraries.
+   * Includes optional headless-browser coverage (Puppeteer + axe-core) to verify keyboard flows and accessibility rules against the real HTML shell. Stage a portable Chromium build and reference it via `PUPPETEER_EXECUTABLE_PATH` to enable the additional checks offline. The repository intentionally omits the Puppeteer packages from `package.json`; fetch and stage them from an approved internal mirror if you want those tests to execute.
+   * Supplements coverage with HTML lint checks that guard against regressions such as remote asset links.
 
-The renderers operate on plain DOM APIs rather than a framework so it is easy to follow
-what happens. When a department is selected, the code clears existing child nodes in each
-section and rebuilds the markup based on the new data set.
+The renderers operate on plain DOM APIs rather than a framework so it is easy to follow what happens. When a department is selected, the code clears existing child nodes in each section and rebuilds the markup based on the new data set.
 
 ## Key Concepts to Understand
 
-* **Data contracts** – The validation layer sanitises bad input, but supplying complete
-  objects keeps the UI richer and minimises warning noise. Refer to
-  [`docs/data-contract.md`](./data-contract.md) when shaping new exports.
-* **Formatting helpers** – `src/utils/format.js` centralises number formatting. Extend it
-  instead of inlining formatting logic across renderers to preserve consistency.
-* **Accessibility considerations** – Live regions, toggle controls, and chart fallbacks
-  ensure the UI remains usable with assistive tech. Mirror this approach when adding
-  features (e.g., always provide text alternatives and keyboard interactions).
-* **Offline guardrails** – The CSS and scripts lint checks guarantee no remote resources
-  are referenced. When adding assets, keep everything locally resolvable.
+* **Data contracts** – The validation layer sanitises bad input, but supplying complete objects keeps the UI richer and minimises warning noise. Refer to [`docs/data-contract.md`](./data-contract.md) when shaping new exports.
+* **Formatting helpers** – `src/utils/format.js` centralises number formatting. Extend it instead of inlining formatting logic across renderers to preserve consistency.
+* **Accessibility considerations** – Live regions, toggle controls, and chart fallbacks ensure the UI remains usable with assistive tech. Mirror this approach when adding features (e.g., always provide text alternatives and keyboard interactions).
+* **Offline guardrails** – CSS validation, the offline assets test, and packaging scripts guarantee no remote resources are referenced. When adding assets, keep everything locally resolvable.
 
 ## Suggested Next Steps for Contributors
 
-1. **Dataset diff tooling** – Provide a command that compares the current dataset against a
-   new export to highlight changes before acceptance.
-2. **Broaden analytics views** – Experiment with additional visualisations (e.g., stacked
-   bar trends or resource allocation heatmaps) that respect the offline-first contract.
-3. **Introduce configurable layouts** – Allow operators to toggle panel ordering or hide
-   sections using saved preferences stored in localStorage.
-4. **Explore print/export views** – An offline PDF or printable layout helps share
-   snapshots during reviews in disconnected environments.
-5. **Codify contribution workflows** – Document branching, code review expectations, and
-   release packaging steps as the contributor base grows.
+1. **Dataset diff tooling** – Provide a command that compares the current dataset against a new export to highlight changes before acceptance.
+2. **Broaden analytics views** – Experiment with additional visualisations (e.g., stacked bar trends or resource allocation heatmaps) that respect the offline-first contract.
+3. **Introduce configurable layouts** – Allow operators to toggle panel ordering or hide sections using saved preferences stored in `localStorage`.
+4. **Explore print/export views** – An offline PDF or printable layout helps share snapshots during reviews in disconnected environments.
+5. **Codify contribution workflows** – Document branching, code review expectations, and release packaging steps as the contributor base grows.
 
-Welcome aboard, and feel free to reach out to the maintainers if anything in this guide is
-unclear or if you have ideas for improvements!
+Welcome aboard, and feel free to reach out to the maintainers if anything in this guide is unclear or if you have ideas for improvements!

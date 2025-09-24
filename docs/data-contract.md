@@ -1,8 +1,6 @@
 # Offline Dataset Contract
 
-The dashboard loads a static JavaScript module (`src/data.js`) that exports a `dataset`
-object. When preparing a new offline snapshot, ensure the payload respects the structure
-below so the validation layer can provide meaningful feedback instead of failing silently.
+The dashboard loads a static JavaScript module (`src/data.js`) that exports a `dataset` object. When preparing a new offline snapshot, ensure the payload respects the structure below so the validation layer can provide meaningful feedback instead of failing silently.
 
 ```ts
 interface DashboardDataset {
@@ -89,9 +87,7 @@ interface ThemeOverrides {
 
 ## Preparing a new snapshot
 
-1. Export a JSON snapshot that matches `DashboardDataset` or produce the CSV sheets outlined
-   below (`meta.csv`, `departments.csv`, `metrics.csv`, `trend-points.csv`, `projects.csv`,
-   `highlights.csv`, `meetings.csv`).
+1. Export a JSON snapshot that matches `DashboardDataset` or produce the CSV sheets outlined below (`meta.csv`, `departments.csv`, `metrics.csv`, `trend-points.csv`, `projects.csv`, `highlights.csv`, `meetings.csv`).
 2. Run the importer to regenerate `src/data.js`:
 
    ```bash
@@ -103,13 +99,11 @@ interface ThemeOverrides {
      --fail-on-warning --log-format json > logs/import.jsonl
    ```
 
-3. Review the warnings emitted by the importer (they are also written as comments to the top of
-   `src/data.js`). Pass `--fail-on-warning` to stop the process when quality issues are detected
-   and archive the JSON log output for auditing.
-4. Execute `npm run check` to validate the full workflow and `npm run package` to rebuild the
-   distributable archive. Packaging will refuse to proceed until the linting and tests succeed.
+3. Review the warnings emitted by the importer (they are also written as comments to the top of `src/data.js`). Pass `--fail-on-warning` to stop the process when quality issues are detected and archive the JSON log output for auditing.
+4. Execute `npm run check` to validate the full workflow and `npm run package` to rebuild the distributable archive. Packaging will refuse to proceed until the linting and tests succeed.
+5. During manual validation you can also import the JSON payload directly through the dashboard’s **Import offline data snapshot** control for a quick smoke test.
 
-### CSV sheet layout
+## CSV sheet layout
 
 The CSV importer expects the following files within the provided directory:
 
@@ -118,15 +112,14 @@ The CSV importer expects the following files within the provided directory:
 | `meta.csv` | `key`, `value` | Keys should be `reportingPeriod`, `lastUpdated`, `refreshGuidance`. |
 | `departments.csv` | `id`, `name`, `summary`, `trendContext`, `projectsContext`, `highlightsContext` | Context columns are optional but help populate copy. |
 | `metrics.csv` | `departmentId`, `label`, `value`, `suffix`, `trendLabel`, `trendDescription` | `value` should be numeric. |
-| `trend-points.csv` | `departmentId`, `label`, `value` | Populates chart/table datapoints. |
+| `trend-points.csv` | `departmentId`, `label`, `value` | One row per datapoint in the chart/table. |
 | `projects.csv` | `departmentId`, `title`, `subtitle`, `meta` | |
 | `highlights.csv` | `departmentId`, `title`, `subtitle`, `meta` | |
 | `meetings.csv` | `departmentId`, `title`, `description`, `time` | |
-| `theme.json` (optional) | JSON object matching `ThemeOverrides` | Applies palette/typography overrides. |
+| `theme.csv` (optional) | `section`, `token`, `value` | Allows setting palette/typography/shape overrides without editing JS. |
+
+Rows referencing unknown department IDs are ignored with warnings so the dataset remains usable.
 
 ## Validation behaviour
 
-If optional fields are missing or arrays are empty, the UI falls back to friendly placeholder
-copy and the warnings banner displays the issues detected during boot. Validation never throws
-away data—it sanitises inputs to the closest safe defaults so the dashboard remains usable
-while surfacing problems for follow-up.
+If optional fields are missing or arrays are empty, the UI falls back to friendly placeholder copy and the warnings banner displays the issues detected during boot or import. Validation never throws away data—it sanitises inputs to the closest safe defaults so the dashboard remains usable while surfacing problems for follow-up. Theme overrides are applied only when values are valid CSS tokens; invalid entries are skipped with warnings.
