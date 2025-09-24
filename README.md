@@ -101,3 +101,7 @@ Each script can be run individually as well: `npm run lint:js` for JavaScript an
 
 There are no automated tests yet. Visual inspection in the browser ensures the layout and
 interactions behave as expected across screen sizes.
+
+To introduce automated coverage, follow the [Dashboard Test Harness Plan](docs/TEST_HARNESS_PLAN.md).
+It describes how to adopt Vitest with a jsdom environment so rendering and data-contract
+regressions can be caught before shipping.
