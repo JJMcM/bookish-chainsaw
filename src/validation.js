@@ -6,93 +6,6 @@ const coerceString = (value, fallback = "") =>
 const coerceNumber = (value, fallback = 0) =>
   typeof value === "number" && Number.isFinite(value) ? value : fallback;
 
-const coerceCssValue = (value) => {
-  if (typeof value === "number" && Number.isFinite(value)) {
-    return String(value);
-  }
-
-  if (typeof value === "string" && value.trim().length > 0) {
-    return value.trim();
-  }
-
-  return null;
-};
-
-const buildTheme = (theme, warnings) => {
-  if (!theme || typeof theme !== "object") {
-    return null;
-  }
-
-  const tokenMap = {
-    palette: {
-      background: "--color-background",
-      surface: "--color-surface",
-      surfaceAlt: "--color-surface-alt",
-      border: "--color-border",
-      text: "--color-text",
-      muted: "--color-muted",
-      accent: "--color-accent",
-      accentMuted: "--color-accent-muted",
-      accentSoft: "--color-accent-soft",
-      alert: "--color-alert"
-    },
-    typography: {
-      base: "--font-family-base",
-      heading: "--font-family-heading",
-      weightHeading: "--font-weight-heading",
-      weightStrong: "--font-weight-strong",
-      bodySize: "--font-size-body",
-      headingScale: "--font-size-heading-scale"
-    },
-    shape: {
-      radiusLg: "--radius-lg",
-      radiusMd: "--radius-md",
-      radiusSm: "--radius-sm",
-      shadowSm: "--shadow-sm",
-      shadowMd: "--shadow-md"
-    }
-  };
-
-  const sanitized = { palette: {}, typography: {}, shape: {} };
-  const cssVariables = {};
-  let hasTokens = false;
-
-  for (const [section, mapping] of Object.entries(tokenMap)) {
-    const sourceSection = theme[section] && typeof theme[section] === "object" ? theme[section] : {};
-    for (const [token, cssVar] of Object.entries(mapping)) {
-      const rawValue = sourceSection[token];
-      if (rawValue === undefined) {
-        continue;
-      }
-
-      const normalized = coerceCssValue(rawValue);
-      if (normalized === null) {
-        warnings.push(`Theme ${section}.${token} is invalid; skipping value.`);
-        continue;
-      }
-
-      sanitized[section][token] = normalized;
-      cssVariables[cssVar] = normalized;
-      hasTokens = true;
-    }
-  }
-
-  for (const section of Object.keys(sanitized)) {
-    if (Object.keys(sanitized[section]).length === 0) {
-      delete sanitized[section];
-    }
-  }
-
-  if (!hasTokens) {
-    return null;
-  }
-
-  return {
-    source: sanitized,
-    cssVariables
-  };
-};
-
 const buildListItems = (items, { warnings, path }) =>
   ensureArray(items).map((item, index) => {
     if (!item || typeof item !== "object") {
@@ -267,12 +180,9 @@ export const validateDataset = (dataset) => {
     });
   }
 
-  const theme = buildTheme(dataset.theme, warnings);
-
   return {
     meta: { reportingPeriod, lastUpdated, refreshGuidance },
     departments,
-    warnings,
-    theme
+    warnings
   };
 };

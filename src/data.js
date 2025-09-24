@@ -32,6 +32,7 @@ export const departments = [
       {
         label: "Safety Observations Logged",
         value: 54,
+        suffix: "",
         trend: { label: "↑ 12", description: "crew-led audits" }
       }
     ],
@@ -132,6 +133,7 @@ export const departments = [
       {
         label: "Vibration Alerts",
         value: 7,
+        suffix: "",
         trend: { label: "↘ 2", description: "bearing replacements landed" }
       }
     ],
@@ -156,242 +158,230 @@ export const departments = [
           meta: "Tear-down Saturday"
         },
         {
-          title: "Boiler Feed Pump Exchange",
-          subtitle: "Prep spare pump base, align suction valves, and stage rigging",
-          meta: "Ready for outage"
+          title: "Steam Trap Survey",
+          subtitle: "Thermal imaging sweep of north loop",
+          meta: "Fieldwork 60%"
+        },
+        {
+          title: "Hydraulic Hose Campaign",
+          subtitle: "Replace critical hoses with crimped assemblies",
+          meta: "12 of 18 complete"
         }
       ]
     },
     highlights: {
-      context: "Crew headlines and watch items",
+      context: "Crew callouts from the mechanical superintendent",
       items: [
         {
-          title: "Gearcase flush cut wear debris by 40%",
-          subtitle: "Oil sampling trending back inside targets",
-          meta: "Reliability"
+          title: "Line 3 coupler change-out finished 2 hours early",
+          subtitle: "Rigging plan shaved downtime",
+          meta: "Schedule"
         },
         {
-          title: "Rigging team completed pump changeout 6 hours early",
-          subtitle: "Overtime shaved for the weekend maintenance window",
-          meta: "Execution"
+          title: "Portable balancer training certified two new techs",
+          subtitle: "Enables weekend PdM coverage",
+          meta: "Skills"
         }
       ]
     },
     meetings: [
       {
-        title: "Millwright Alignment Check-in",
-        description: "Confirm tooling availability and second-shift coverage",
-        time: "Tuesday · 14:00 – 14:30"
+        title: "Millwright Toolbox Talk",
+        description: "Discuss lockout sequence updates and pinch point hazards",
+        time: "Tuesday · 06:10 – 06:30"
       },
       {
-        title: "Lubrication Route Review",
-        description: "Validate new merged routes and grease spec updates",
-        time: "Thursday · 09:30 – 10:15"
+        title: "Planner Hand-Off",
+        description: "Confirm parts availability for weekend shutdown",
+        time: "Thursday · 15:00 – 15:20"
       }
     ]
   },
   {
     id: "electrical",
-    name: "Electrical",
+    name: "Electrical & Instrumentation",
     summary:
-      "Crew zeroed out urgent breaker inspections and handed off arc-flash updates. Instrument tech backlog is steady; plan to free a floater for PLC work next week.",
+      "The team prioritised MCC inspections and cleared nuisance trips on the packaging line. Instrument techs still need historian tags for the new flow meters before go-live.",
     metrics: [
       {
-        label: "Preventive Tasks Completed",
-        value: 126,
-        trend: { label: "↑ 18", description: "panel inspections accelerated" }
-      },
-      {
-        label: "Priority Call-ins",
-        value: 6,
-        suffix: " events",
-        trend: { label: "↘ 2", description: "spare breaker cache paid off" }
-      },
-      {
-        label: "Thermography Exceptions",
-        value: 3,
-        trend: { label: "↘ 1", description: "load balancing resolved hot spots" }
-      },
-      {
-        label: "Control Room Coverage",
-        value: 96,
+        label: "PM Completion",
+        value: 95,
         suffix: "%",
-        trend: { label: "↗ 3", description: "cross-training backfill" }
+        trend: { label: "↑ 3", description: "extra overtime window" }
+      },
+      {
+        label: "Control Cabinet Findings",
+        value: 12,
+        suffix: "",
+        trend: { label: "↗ 5", description: "thermal scans catching hot spots" }
+      },
+      {
+        label: "Breaker Trips",
+        value: 1,
+        suffix: "",
+        trend: { label: "↓ 2", description: "load balancing on line 5" }
+      },
+      {
+        label: "Calibration Backlog",
+        value: 6,
+        suffix: " loops",
+        trend: { label: "↘ 4", description: "loaned techs from utilities" }
       }
     ],
     trend: {
-      context: "Average hours to close electrical work orders",
+      context: "Protective relay tests completed per day",
       datapoints: [
-        { label: "Mon", value: 6.1 },
-        { label: "Tue", value: 5.8 },
-        { label: "Wed", value: 5.4 },
-        { label: "Thu", value: 5.1 },
-        { label: "Fri", value: 4.8 },
-        { label: "Sat", value: 4.5 },
-        { label: "Sun", value: 4.2 }
+        { label: "Mon", value: 3 },
+        { label: "Tue", value: 5 },
+        { label: "Wed", value: 4 },
+        { label: "Thu", value: 4 },
+        { label: "Fri", value: 6 },
+        { label: "Sat", value: 2 },
+        { label: "Sun", value: 1 }
       ]
     },
     projects: {
-      context: "Electrical work in flight",
+      context: "Electrical & instrumentation projects with open actions",
       items: [
         {
-          title: "Arc-Flash Study Refresh",
-          subtitle: "Finalize labels for boiler house and switchgear",
-          meta: "Labels printing"
+          title: "MCC Infrared Survey",
+          subtitle: "Capture load imbalance data for panel 12",
+          meta: "Report due Thursday"
         },
         {
-          title: "PLC Firmware Upgrades",
-          subtitle: "Schedule windows with production to flash controllers",
-          meta: "Round 1 complete"
+          title: "Flow Meter Commissioning",
+          subtitle: "Validate scaling and historian tags",
+          meta: "Waiting on PI mapping"
+        },
+        {
+          title: "UPS Battery Replacement",
+          subtitle: "Swap cells on emergency lighting circuits",
+          meta: "8 of 14 panels"
         }
       ]
     },
     highlights: {
-      context: "Noteworthy outcomes",
+      context: "Signals from electricians and instrument techs",
       items: [
         {
-          title: "Breaker infrared scan caught loose lug early",
-          subtitle: "Avoided unplanned outage on kiln feeder",
-          meta: "Reliability"
+          title: "Packaging PLC nuisance fault resolved",
+          subtitle: "Re-terminated loose IO block wiring",
+          meta: "Stability"
         },
         {
-          title: "Instrument tech cross-training unlocked night shift coverage",
-          subtitle: "No open calls during weekend operations",
-          meta: "Staffing"
+          title: "Safety relay training completed for apprentices",
+          subtitle: "Now cleared for solo troubleshooting",
+          meta: "Training"
         }
       ]
     },
     meetings: [
       {
-        title: "Electrical Work Coordination",
-        description: "Sequence planned line shutdowns and permit requests",
-        time: "Monday · 10:00 – 10:45"
+        title: "Power Distribution Review",
+        description: "Evaluate feeder loading against summer profile",
+        time: "Wednesday · 14:00 – 14:45"
       },
       {
-        title: "Controls Steering",
-        description: "Review PLC firmware schedule and automation requests",
-        time: "Thursday · 13:00 – 13:45"
+        title: "Instrumentation Stand-Up",
+        description: "Coordinate calibrations and spare transmitters",
+        time: "Friday · 07:30 – 07:50"
       }
     ]
   },
   {
     id: "reliability",
-    name: "Reliability",
+    name: "Reliability Engineering",
     summary:
-      "PdM coverage expanded to all boiler feed assets while analysts validated sensor drift. Outage prep is on pace but lube analysis turnaround needs attention.",
+      "Predictive program coverage expanded and the asset risk matrix was refreshed. The team is modelling spare motor lead times to avoid line stoppages during hurricane season.",
     metrics: [
       {
-        label: "Assets on PdM Routes",
-        value: 118,
-        trend: { label: "↑ 9", description: "new boiler feed pumps instrumented" }
-      },
-      {
-        label: "Condition Alerts Reviewed",
-        value: 27,
-        trend: { label: "↗ 5", description: "steam trap campaign generated findings" }
-      },
-      {
-        label: "Lube Lab Turnaround",
-        value: 4.5,
-        suffix: " days",
-        trend: { label: "↗ 1.2", description: "supplier backlog" }
-      },
-      {
-        label: "Ultrasound Routes Completed",
-        value: 86,
+        label: "PdM Coverage",
+        value: 78,
         suffix: "%",
-        trend: { label: "↘ 6", description: "coverage shifted to outage prep" }
+        trend: { label: "↑ 7", description: "new ultrasound routes" }
+      },
+      {
+        label: "Failure Investigations",
+        value: 3,
+        suffix: " active",
+        trend: { label: "↔", description: "awaiting vendor reports" }
+      },
+      {
+        label: "Critical Spares Accuracy",
+        value: 94,
+        suffix: "%",
+        trend: { label: "↑ 4", description: "cycle counts reconciled" }
+      },
+      {
+        label: "Condition Alerts",
+        value: 9,
+        suffix: "",
+        trend: { label: "↘ 3", description: "addressed lube issues" }
       }
     ],
     trend: {
-      context: "Predictive findings validated per week",
+      context: "Risk-ranked assets reviewed each day",
       datapoints: [
-        { label: "Mon", value: 9 },
-        { label: "Tue", value: 11 },
-        { label: "Wed", value: 12 },
-        { label: "Thu", value: 10 },
-        { label: "Fri", value: 8 },
-        { label: "Sat", value: 6 },
-        { label: "Sun", value: 4 }
+        { label: "Mon", value: 8 },
+        { label: "Tue", value: 10 },
+        { label: "Wed", value: 9 },
+        { label: "Thu", value: 11 },
+        { label: "Fri", value: 12 },
+        { label: "Sat", value: 4 },
+        { label: "Sun", value: 3 }
       ]
     },
     projects: {
-      context: "Reliability initiatives",
+      context: "Reliability initiatives moving the risk needle",
       items: [
         {
-          title: "Steam Trap Audit",
-          subtitle: "Instrument remaining traps and log follow-up work",
-          meta: "82% complete"
+          title: "Asset Criticality Review",
+          subtitle: "Re-score packaging line drives with production",
+          meta: "Workshop Friday"
         },
         {
-          title: "Boiler Feed Upgrade Readiness",
-          subtitle: "Finalize sensor baselines and alarm thresholds",
-          meta: "Cutover support"
+          title: "Spare Motor Strategy",
+          subtitle: "Model lead time and carrying cost trade-offs",
+          meta: "Finance review next week"
+        },
+        {
+          title: "PdM Route Expansion",
+          subtitle: "Add ultrasound checks to ammonia compressors",
+          meta: "Relaunch Tuesday"
         }
       ]
     },
     highlights: {
-      context: "Program call-outs",
+      context: "Notes from the reliability program board",
       items: [
         {
-          title: "Vibration alert prevented gearbox failure",
-          subtitle: "Maintenance swapped bearing before catastrophic damage",
-          meta: "PdM"
+          title: "MTBF on conveyors climbed to 124 days",
+          subtitle: "Root cause work orders closed the chronic jam",
+          meta: "Continuity"
         },
         {
-          title: "Lube lab flagged varnish levels early",
-          subtitle: "Coordinated flush avoids production downtime",
-          meta: "Lubrication"
+          title: "Digital twin pilot caught pump cavitation early",
+          subtitle: "Ops throttled flow before damage occurred",
+          meta: "Predictive"
         }
       ]
     },
     meetings: [
       {
-        title: "Reliability / Maintenance Sync",
-        description: "Review PdM findings and outage prep tasks",
-        time: "Wednesday · 15:00 – 16:00"
+        title: "PdM Analytics Review",
+        description: "Walk predictive trends with operations supervisors",
+        time: "Tuesday · 13:00 – 13:45"
       },
       {
-        title: "Predictive Analytics Stand-up",
-        description: "Prioritise sensor tuning and alert reviews",
-        time: "Friday · 10:00 – 10:30"
+        title: "Spares Strategy Workshop",
+        description: "Align on stocking levels for hurricane readiness",
+        time: "Thursday · 10:00 – 11:00"
       }
     ]
   }
 ];
 
-export const dashboardTheme = {
-  palette: {
-    background: "#f6f7fb",
-    surface: "#ffffff",
-    surfaceAlt: "#f0f1f7",
-    border: "#d8dbe7",
-    text: "#1f2937",
-    muted: "#6b7280",
-    accent: "#2563eb",
-    accentMuted: "#bfdbfe",
-    accentSoft: "rgba(37, 99, 235, 0.1)",
-    alert: "#b45309"
-  },
-  typography: {
-    base:
-      '"Inter", "Segoe UI", "Helvetica Neue", system-ui, -apple-system, BlinkMacSystemFont, sans-serif',
-    heading:
-      '"Inter", "Segoe UI", "Helvetica Neue", system-ui, -apple-system, BlinkMacSystemFont, sans-serif',
-    weightHeading: "600",
-    weightStrong: "700"
-  },
-  shape: {
-    radiusLg: "20px",
-    radiusMd: "14px",
-    radiusSm: "10px",
-    shadowSm: "0 8px 24px rgba(15, 23, 42, 0.04)",
-    shadowMd: "0 20px 45px rgba(15, 23, 42, 0.08)"
-  }
-};
-
 export const dataset = {
   meta: dashboardMeta,
-  departments,
-  theme: dashboardTheme
+  departments
 };

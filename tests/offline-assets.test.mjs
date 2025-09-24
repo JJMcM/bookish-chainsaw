@@ -28,10 +28,7 @@ const gatherFiles = async (entry) => {
   return results;
 };
 
-const REMOTE_PATTERN = /https?:\/\/[^\s"']+/gi;
-const LOCAL_ALLOWLIST = [/^https?:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?/i];
-
-const isAllowed = (url) => LOCAL_ALLOWLIST.some((pattern) => pattern.test(url));
+const REMOTE_PATTERN = /https?:\/\//gi;
 
 test("runtime assets avoid remote network dependencies", async () => {
   const roots = [path.join(ROOT, "index.html"), path.join(ROOT, "src"), path.join(ROOT, "tests")];
@@ -45,10 +42,7 @@ test("runtime assets avoid remote network dependencies", async () => {
     const contents = await readFile(file, "utf8");
     const matches = contents.match(REMOTE_PATTERN);
     if (matches) {
-      const disallowed = matches.filter((match) => !isAllowed(match));
-      if (disallowed.length > 0) {
-        offenders.push({ file: path.relative(ROOT, file), sample: disallowed[0] });
-      }
+      offenders.push({ file: path.relative(ROOT, file), sample: matches[0] });
     }
   }
 

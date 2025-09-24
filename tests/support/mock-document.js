@@ -6,24 +6,6 @@ class MockTextNode {
   }
 }
 
-class MockStyle {
-  constructor() {
-    this.properties = new Map();
-  }
-
-  setProperty(name, value) {
-    this.properties.set(name, String(value));
-  }
-
-  getPropertyValue(name) {
-    return this.properties.get(name) ?? "";
-  }
-
-  removeProperty(name) {
-    this.properties.delete(name);
-  }
-}
-
 class MockElement {
   constructor(tagName, document) {
     this.tagName = tagName.toUpperCase();
@@ -31,7 +13,7 @@ class MockElement {
     this.children = [];
     this.attributes = new Map();
     this.dataset = {};
-    this.style = new MockStyle();
+    this.style = {};
     this._textContent = "";
     this.className = "";
     this.value = "";
@@ -77,82 +59,76 @@ class MockElement {
   }
 
   addEventListener(type, handler) {
-    if (!this.listeners.has(type)) {
-      this.listeners.set(type, new Set());
-    }
-    this.listeners.get(type).add(handler);
+    this.listeners.set(type, handler);
   }
 
   removeEventListener(type, handler) {
-    this.listeners.get(type)?.delete(handler);
+    if (!handler) {
+      this.listeners.delete(type);
+      return;
+    }
+    const current = this.listeners.get(type);
+    if (current === handler) {
+      this.listeners.delete(type);
+    }
   }
 
   dispatchEvent(event) {
-    const handlers = this.listeners.get(event.type);
-    if (!handlers) {
-      return false;
+    const handler = this.listeners.get(event.type);
+    if (handler) {
+      handler.call(this, event);
     }
-    handlers.forEach((handler) => handler(event));
-    return true;
-  }
-
-  get firstChild() {
-    return this.children[0] ?? null;
-  }
-
-  get textContent() {
-    if (this.children.length === 0) {
-      return this._textContent;
-    }
-    return this.children
-      .map((child) => (child.nodeType === 3 ? child.textContent : child.textContent))
-      .join("");
-  }
-
-  set textContent(value) {
-    this.children = [];
-    this._textContent = String(value ?? "");
-  }
-
-  get innerHTML() {
-    return this.children.map((child) => child.textContent ?? "").join("");
   }
 
   set innerHTML(value) {
     this.children = [];
-    if (value) {
-      this.appendChild(String(value));
+    this._textContent = value;
+  }
+
+  get innerHTML() {
+    if (this.children.length) {
+      return this.children.map((child) => child.textContent ?? "").join("");
     }
+    return this._textContent;
+  }
+
+  set textContent(value) {
+    this.children = [];
+    this._textContent = value;
+  }
+
+  get textContent() {
+    if (this.children.length) {
+      return this.children
+        .map((child) => (child.nodeType === 3 ? child.textContent : child.textContent))
+        .join("");
+    }
+    return this._textContent;
   }
 }
 
-class MockDocument {
-  constructor() {
-    this.elements = new Map();
-    this.body = new MockElement("body", this);
-    this.documentElement = new MockElement("html", this);
-    this.title = "";
-  }
+export const createMockDocument = () => {
+  const elements = new Map();
 
-  register(selector, element) {
-    this.elements.set(selector, element);
-    element.ownerDocument = this;
-    return element;
-  }
+  const document = {
+    title: "",
+    register(selector, element) {
+      element.ownerDocument = document;
+      elements.set(selector, element);
+      return element;
+    },
+    querySelector(selector) {
+      return elements.get(selector) ?? null;
+    },
+    createElement(tag) {
+      return new MockElement(tag, document);
+    },
+    createTextNode(text) {
+      return new MockTextNode(text, document);
+    }
+  };
 
-  querySelector(selector) {
-    return this.elements.get(selector) ?? null;
-  }
+  return document;
+};
 
-  createElement(tagName) {
-    return new MockElement(tagName, this);
-  }
-
-  createTextNode(text) {
-    return new MockTextNode(text, this);
-  }
-}
-
-export { MockDocument, MockElement, MockTextNode, MockStyle };
-
-export const createMockDocument = () => new MockDocument();
+export { MockElement };

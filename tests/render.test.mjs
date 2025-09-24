@@ -68,25 +68,6 @@ test("validation provides sane fallbacks", () => {
   assert.equal(result.meta.reportingPeriod, "Not specified");
 });
 
-test("theme tokens are applied to the document root", () => {
-  const document = buildDocument();
-  const themedDataset = {
-    meta: dataset.meta,
-    departments: dataset.departments,
-    theme: {
-      palette: { background: "#101820" },
-      typography: { base: '"Atkinson Hyperlegible", sans-serif' }
-    }
-  };
-
-  createDashboard(document, themedDataset);
-
-  const backgroundToken = document.documentElement.style.getPropertyValue("--color-background");
-  assert.equal(backgroundToken, "#101820");
-  const fontToken = document.documentElement.style.getPropertyValue("--font-family-base");
-  assert.equal(fontToken, '"Atkinson Hyperlegible", sans-serif');
-});
-
 test("loadDataset applies new snapshot and preserves selection where possible", () => {
   const document = buildDocument();
   const controller = createDashboard(document, dataset);

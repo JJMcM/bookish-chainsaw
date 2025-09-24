@@ -18,27 +18,6 @@ const clearElement = (element) => {
   }
 };
 
-const applyThemeTokens = (documentRef, theme, appliedVars) => {
-  const root = documentRef.documentElement;
-  if (!root || !root.style || typeof root.style.setProperty !== "function") {
-    return;
-  }
-
-  appliedVars.forEach((name) => {
-    root.style.removeProperty(name);
-  });
-  appliedVars.clear();
-
-  if (!theme || !theme.cssVariables) {
-    return;
-  }
-
-  Object.entries(theme.cssVariables).forEach(([name, value]) => {
-    root.style.setProperty(name, value);
-    appliedVars.add(name);
-  });
-};
-
 const renderList = (container, items, emptyCopy) => {
   clearElement(container);
 
@@ -158,8 +137,7 @@ const renderTrendChart = (documentRef, chart, datapoints) => {
     bar.className = "trend-chart__bar";
     bar.dataset.label = point.label;
 
-    const height =
-      maxValue === 0 ? MIN_BAR_HEIGHT : Math.max((point.value / maxValue) * 100, MIN_BAR_HEIGHT);
+    const height = maxValue === 0 ? MIN_BAR_HEIGHT : Math.max((point.value / maxValue) * 100, MIN_BAR_HEIGHT);
     bar.style.height = `${height}%`;
 
     const value = documentRef.createElement("span");
@@ -231,21 +209,19 @@ export const createDashboard = (documentRef, rawDataset) => {
     highlightsList: requireElement(documentRef, "#highlights-list", "highlights list"),
     highlightsContext: requireElement(documentRef, "#highlights-context", "highlights context"),
     meetingsList: requireElement(documentRef, "#meetings-list", "meetings list"),
+    departmentSummary: requireElement(documentRef, "#department-summary", "department summary"),
+    departmentSummaryCard: requireElement(
+      documentRef,
+      "#department-summary-card",
+      "department summary container"
+    ),
     dataWarnings: requireElement(documentRef, "#data-warnings", "warnings region"),
     reportingPeriod: requireElement(documentRef, "#reporting-period", "reporting period field"),
     lastUpdated: requireElement(documentRef, "#last-updated", "last updated field"),
     refreshGuidance: requireElement(documentRef, "#refresh-guidance", "refresh guidance field"),
     trendContainer: requireElement(documentRef, ".trend", "trend container"),
-    trendToggle: requireElement(documentRef, "#trend-toggle", "trend toggle button"),
-    departmentSummary: requireElement(documentRef, "#department-summary", "department summary"),
-    departmentSummaryCard: requireElement(
-      documentRef,
-      "#department-summary-card",
-      "department summary card"
-    )
+    trendToggle: requireElement(documentRef, "#trend-toggle", "trend toggle button")
   };
-
-  const appliedThemeVariables = new Set();
 
   const state = {
     view: "chart",
@@ -339,7 +315,6 @@ export const createDashboard = (documentRef, rawDataset) => {
     state.warnings = validatedDataset.warnings;
     state.meta = validatedDataset.meta;
 
-    applyThemeTokens(documentRef, validatedDataset.theme, appliedThemeVariables);
     renderWarnings(elements.dataWarnings, state.warnings, documentRef);
 
     elements.reportingPeriod.textContent = state.meta.reportingPeriod;

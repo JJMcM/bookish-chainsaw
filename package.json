@@ -12,9 +12,7 @@
     "lint:css": "node scripts/css-validate.mjs",
     "test": "node tests/run-tests.mjs",
     "check": "npm run lint && npm test",
-    "package": "bash scripts/package.sh",
-    "ci": "npm run check && SKIP_PACKAGE_CHECKS=1 bash scripts/package.sh",
-    "dataset:import": "node scripts/import-dataset.mjs"
+    "package": "bash scripts/package.sh"
   },
   "keywords": [],
   "author": "",
