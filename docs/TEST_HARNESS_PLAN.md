@@ -1,9 +1,11 @@
 # Dashboard Test Harness Plan
 
-This document outlines how to introduce a lightweight automated test harness so UI and data
-changes to the Workplace Operations Dashboard can be validated before every release. The
-approach favours minimal tooling, fast feedback, and tests that reflect how real users see the
-dashboard.
+This document tracks the evolution of the automated test harness that ships with the Workplace
+Operations Dashboard. The current stack combines a bespoke Node-based runner, a mock DOM, and an
+optional headless-browser layer (Puppeteer + axe-core) so UI and data changes can be validated
+before every release. The roadmap below outlines additional improvements if you decide to grow the
+suite further. The approach favours minimal tooling, fast feedback, and tests that reflect how real
+users see the dashboard.
 
 ## Goals
 
@@ -15,6 +17,9 @@ dashboard.
   tooling.
 
 ## Tooling Overview
+
+> The repository currently ships with bespoke tooling. The stack below captures a future-looking
+> option if you choose to standardise on community libraries.
 
 * **Node.js 18+** – runtime for the tooling; recommend using `nvm` or Volta to manage versions.
 * **Vitest** – fast unit test runner with zero-config TypeScript support if needed later.

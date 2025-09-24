@@ -23,23 +23,18 @@ python3 -m http.server 8000
 Then visit [http://localhost:8000](http://localhost:8000) and navigate to
 `index.html`.
 
-### Option 3: Use `npx serve`
-
-If you have Node.js installed:
-
-```bash
-npx serve .
-```
+> **Tip:** The dashboard works entirely offline. None of the workflows above require internet
+> access, and all assets (fonts, data, styles) are bundled locally.
 
 ## Project Structure
 
 ```
-├── assets/
-│   └── styles.css        # Global styling for layout, cards, and charts
+├── assets/               # Styling, locally resolved fonts, and component tokens
+├── docs/                 # Onboarding, data contracts, and test harness design notes
 ├── index.html            # Page shell with layout and semantic structure
-├── src/
-│   ├── data.js           # Sample data describing each department
-│   └── main.js           # UI rendering + interactivity (filters, charts)
+├── scripts/              # Offline-friendly linting and packaging utilities
+├── src/                  # Data set, renderers, and validation helpers
+└── tests/                # Minimal DOM harness and regression checks
 ```
 
 ### Further Reading
@@ -47,61 +42,68 @@ npx serve .
 New contributors should start with [`docs/ONBOARDING.md`](docs/ONBOARDING.md) for a tour of
 the codebase, data flow, and suggested next steps.
 
+## Refreshing data offline
+
+Transform exported CSV or JSON snapshots into the JavaScript dataset module with the
+bundled importer:
+
+```bash
+# From the project root
+node scripts/import-dataset.mjs --format json --input ./data/latest.json
+
+# Or convert a directory of CSV sheets (meta.csv, departments.csv, metrics.csv, etc.)
+node scripts/import-dataset.mjs --format csv --input ./data/offline-export
+```
+
+Add `--dry-run` to preview the generated module without writing to disk. The importer runs
+the same validation logic used at runtime so warnings are surfaced immediately and emitted
+as comments at the top of `src/data.js`.
+
 ## Customising the Dashboard
 
-* Update `src/data.js` to reflect real metrics, project summaries, highlights, and
-  meetings from your workplace systems.
+* Extend the dataset importer output (`src/data.js`) with real metrics, project summaries,
+  highlights, and meetings from your workplace systems.
 * Adjust the cards or layout in `index.html` to match the views your stakeholders need
   most (e.g. swap projects for staffing forecasts).
-* Tweak the palette or component styling in `assets/styles.css` to align with brand
-  guidelines.
+* Override the palette, typography, and shape tokens defined in `dashboardTheme` or via
+  CSS custom properties in `assets/styles.css` to align with brand guidelines.
 
 
 ## Code Quality Tooling
 
-This repository ships with shared linting and formatting tools to keep the codebase
-consistent:
+All verification runs without third-party dependencies so it can execute on air-gapped
+workstations:
 
-* **ESLint** checks the JavaScript modules in `src/` for logic and import issues.
-* **Prettier** enforces consistent formatting across JavaScript, CSS, Markdown, and JSON files.
-* **stylelint** validates CSS in `assets/` and any future style sheets.
+* `npm run lint:js` executes `node --check` across the source, scripts, and test suites.
+* `npm run lint:css` scans every stylesheet to ensure no remote fonts or imports slip in.
+* `npm test` runs the lightweight DOM harness plus optional headless-browser checks. Set
+  `PUPPETEER_EXECUTABLE_PATH` (or `CHROMIUM_PATH`) to point at a local Chromium binary to
+  enable keyboard flow and axe-core accessibility assertions.
+* `npm run check` chains the linters and tests.
 
-### Setup
+### Packaging for distribution
 
-Install the development dependencies (Node.js 18+ recommended):
-
-```bash
-npm install
-```
-
-### Usage
-
-Run all linters:
+Create a distributable archive that contains every offline asset:
 
 ```bash
-npm run lint
+npm run package
 ```
 
-Format the project in place:
-
-```bash
-npm run format
-```
-
-Each script can be run individually as well: `npm run lint:js` for JavaScript and
-`npm run lint:css` for CSS.
-
-## Next Ideas
-
-* Wire up real APIs or CSV exports by replacing the static data module with fetch calls.
-* Add authentication and role-based views once you host it behind a lightweight backend.
-* Introduce charts (e.g. with D3 or Chart.js) for richer visuals or historical analysis.
+The command emits `dist/offline-dashboard.tar.gz` which can be copied to any disconnected
+environment.
 
 ## Testing
 
-There are no automated tests yet. Visual inspection in the browser ensures the layout and
-interactions behave as expected across screen sizes.
+Automated regression coverage lives in `tests/`. The harness stubs a minimal DOM so rendering
+and validation can be asserted without browsers or network access:
 
-To introduce automated coverage, follow the [Dashboard Test Harness Plan](docs/TEST_HARNESS_PLAN.md).
-It describes how to adopt Vitest with a jsdom environment so rendering and data-contract
-regressions can be caught before shipping.
+```bash
+# DOM-only checks
+npm test
+
+# Full suite with headless browser audits (requires installing optional dev dependencies)
+PUPPETEER_EXECUTABLE_PATH=/path/to/chromium npm test
+```
+
+See [`docs/TEST_HARNESS_PLAN.md`](docs/TEST_HARNESS_PLAN.md) for the roadmap behind the
+integration tests and future expansion ideas.

@@ -1,3 +1,10 @@
+export const dashboardMeta = {
+  reportingPeriod: "Week 32 · 2024",
+  lastUpdated: "Manual import · Aug 5, 2024 09:00",
+  refreshGuidance:
+    "Built for transparent operations. Import a new offline dataset to refresh the view."
+};
+
 export const departments = [
   {
     id: "all",
@@ -445,3 +452,39 @@ export const departments = [
     ]
   }
 ];
+
+export const dashboardTheme = {
+  palette: {
+    background: "#f6f7fb",
+    surface: "#ffffff",
+    surfaceAlt: "#f0f1f7",
+    border: "#d8dbe7",
+    text: "#1f2937",
+    muted: "#6b7280",
+    accent: "#2563eb",
+    accentMuted: "#bfdbfe",
+    accentSoft: "rgba(37, 99, 235, 0.1)",
+    alert: "#b45309"
+  },
+  typography: {
+    base:
+      '"Inter", "Segoe UI", "Helvetica Neue", system-ui, -apple-system, BlinkMacSystemFont, sans-serif',
+    heading:
+      '"Inter", "Segoe UI", "Helvetica Neue", system-ui, -apple-system, BlinkMacSystemFont, sans-serif',
+    weightHeading: "600",
+    weightStrong: "700"
+  },
+  shape: {
+    radiusLg: "20px",
+    radiusMd: "14px",
+    radiusSm: "10px",
+    shadowSm: "0 8px 24px rgba(15, 23, 42, 0.04)",
+    shadowMd: "0 20px 45px rgba(15, 23, 42, 0.08)"
+  }
+};
+
+export const dataset = {
+  meta: dashboardMeta,
+  departments,
+  theme: dashboardTheme
+};
