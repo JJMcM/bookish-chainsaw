@@ -98,12 +98,16 @@ interface ThemeOverrides {
    node scripts/import-dataset.mjs --format json --input ./data/latest.json
    # or
    node scripts/import-dataset.mjs --format csv --input ./data/offline-export
+   # fail on warnings and emit structured logs when running in CI
+   node scripts/import-dataset.mjs --format csv --input ./data/offline-export \
+     --fail-on-warning --log-format json > logs/import.jsonl
    ```
 
 3. Review the warnings emitted by the importer (they are also written as comments to the top of
-   `src/data.js`) and address any missing fields.
+   `src/data.js`). Pass `--fail-on-warning` to stop the process when quality issues are detected
+   and archive the JSON log output for auditing.
 4. Execute `npm run check` to validate the full workflow and `npm run package` to rebuild the
-   distributable archive.
+   distributable archive. Packaging will refuse to proceed until the linting and tests succeed.
 
 ### CSV sheet layout
 

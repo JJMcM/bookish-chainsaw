@@ -53,11 +53,17 @@ node scripts/import-dataset.mjs --format json --input ./data/latest.json
 
 # Or convert a directory of CSV sheets (meta.csv, departments.csv, metrics.csv, etc.)
 node scripts/import-dataset.mjs --format csv --input ./data/offline-export
+
+# Fail the run if warnings are encountered and emit JSON logs for auditing
+node scripts/import-dataset.mjs --format csv --input ./data/offline-export \
+  --fail-on-warning --log-format json > logs/import.jsonl
 ```
 
-Add `--dry-run` to preview the generated module without writing to disk. The importer runs
-the same validation logic used at runtime so warnings are surfaced immediately and emitted
-as comments at the top of `src/data.js`.
+Add `--dry-run` to preview the generated module without writing to disk. Pass
+`--fail-on-warning` when integrating the importer into CI so data quality issues stop the
+pipeline. `--log-format json` emits structured log lines that can be archived alongside
+build artifacts. The importer runs the same validation logic used at runtime so warnings
+are surfaced immediately and written as comments at the top of `src/data.js`.
 
 ## Customising the Dashboard
 
@@ -78,8 +84,11 @@ workstations:
 * `npm run lint:css` scans every stylesheet to ensure no remote fonts or imports slip in.
 * `npm test` runs the lightweight DOM harness plus optional headless-browser checks. Set
   `PUPPETEER_EXECUTABLE_PATH` (or `CHROMIUM_PATH`) to point at a local Chromium binary to
-  enable keyboard flow and axe-core accessibility assertions.
+  enable keyboard flow and axe-core accessibility assertions. Copy a portable Chromium
+  build onto the offline workstation and point the environment variable at its executable.
 * `npm run check` chains the linters and tests.
+* `npm run ci` replicates the continuous-integration workflow (checks + packaging without
+  regenerating the archive if validation fails).
 
 ### Packaging for distribution
 
@@ -90,7 +99,8 @@ npm run package
 ```
 
 The command emits `dist/offline-dashboard.tar.gz` which can be copied to any disconnected
-environment.
+environment. The packaging script runs `npm run check` first so linting and tests must
+pass before an archive is produced.
 
 ## Testing
 

@@ -5,6 +5,11 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DIST="$ROOT/dist"
 ARCHIVE="$DIST/offline-dashboard.tar.gz"
 
+if [ "${SKIP_PACKAGE_CHECKS:-0}" != "1" ]; then
+  echo "Running verification checks before packaging..."
+  npm run --silent check
+fi
+
 rm -rf "$DIST"
 mkdir -p "$DIST"
 

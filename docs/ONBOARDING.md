@@ -44,7 +44,8 @@ installation required—opening `index.html` in a modern browser will execute th
    * Exports `dashboardMeta`, `departments`, and `dashboardTheme`. Each department object
      follows a consistent shape (metrics, trend, projects, highlights, meetings).
    * Regenerate this file via `scripts/import-dataset.mjs` so offline CSV/JSON exports flow
-     through a single, validated pipeline.
+     through a single, validated pipeline. Pass `--fail-on-warning` when consuming real
+     exports so data quality issues block promotion.
 
 4. **Rendering controller (`src/dashboard.js`)**
    * Validates the dataset, stores warnings, and attaches DOM event handlers.
@@ -65,7 +66,9 @@ installation required—opening `index.html` in a modern browser will execute th
    * Provides a bespoke mock DOM implementation so renderers can be exercised without
      external libraries.
    * Includes optional headless-browser coverage (Puppeteer + axe-core) to verify keyboard
-     flows and accessibility rules against the real HTML shell.
+     flows and accessibility rules against the real HTML shell. Drop a portable Chromium
+     build on the workstation and reference it via `PUPPETEER_EXECUTABLE_PATH` to enable
+     the additional checks offline.
 
 The renderers operate on plain DOM APIs rather than a framework so it is easy to follow
 what happens. When a department is selected, the code clears existing child nodes in each
@@ -86,9 +89,8 @@ section and rebuilds the markup based on the new data set.
 
 ## Suggested Next Steps for Contributors
 
-1. **Automate data quality gates** – Extend the importer to reject exports with missing
-   required sections (rather than just warning) and emit machine-readable audit logs for
-   record keeping.
+1. **Dataset diff tooling** – Provide a command that compares the current dataset against a
+   new export to highlight changes before acceptance.
 2. **Broaden analytics views** – Experiment with additional visualisations (e.g., stacked
    bar trends or resource allocation heatmaps) that respect the offline-first contract.
 3. **Introduce configurable layouts** – Allow operators to toggle panel ordering or hide

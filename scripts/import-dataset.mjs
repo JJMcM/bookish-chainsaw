@@ -13,7 +13,14 @@ const THEME_FILENAME = "theme.json";
 
 const parseArgs = () => {
   const args = process.argv.slice(2);
-  const options = { format: null, input: null, output: DEFAULT_OUTPUT, dryRun: false };
+  const options = {
+    format: null,
+    input: null,
+    output: DEFAULT_OUTPUT,
+    dryRun: false,
+    failOnWarning: false,
+    logFormat: "text"
+  };
 
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i];
@@ -33,6 +40,17 @@ const parseArgs = () => {
       case "--dry-run":
         options.dryRun = true;
         break;
+      case "--fail-on-warning":
+        options.failOnWarning = true;
+        break;
+      case "--log-format": {
+        const next = args[i + 1]?.toLowerCase() ?? "";
+        if (next === "json" || next === "text") {
+          options.logFormat = next;
+          i += 1;
+        }
+        break;
+      }
       case "--help":
       case "-h":
         return { help: true };
@@ -47,7 +65,9 @@ const parseArgs = () => {
 };
 
 const printHelp = () => {
-  console.log(`Offline dataset importer\n\nUsage: node scripts/import-dataset.mjs --format <json|csv> --input <path> [--output <path>] [--dry-run]\n\nExamples:\n  node scripts/import-dataset.mjs --format json --input data/dataset.json\n  node scripts/import-dataset.mjs --format csv --input data/offline-export\n`);
+  console.log(
+    `Offline dataset importer\n\nUsage: node scripts/import-dataset.mjs --format <json|csv> --input <path> [--output <path>] [--dry-run] [--fail-on-warning] [--log-format <text|json>]\n\nExamples:\n  node scripts/import-dataset.mjs --format json --input data/dataset.json --fail-on-warning\n  node scripts/import-dataset.mjs --format csv --input data/offline-export --log-format json\n`
+  );
 };
 
 const ensureFileExists = async (targetPath) => {
@@ -250,6 +270,24 @@ const createModuleSource = ({ meta, departments, theme }, warnings) => {
   return `${warningBanner}export const dashboardMeta = ${metaLiteral};\n\nexport const departments = ${departmentsLiteral};\n\nexport const dashboardTheme = ${themeLiteral};\n\nexport const dataset = {\n  meta: dashboardMeta,\n  departments,\n  theme: dashboardTheme\n};\n`;
 };
 
+const logWarnings = (warnings, format) => {
+  if (!warnings.length) {
+    return;
+  }
+
+  if (format === "json") {
+    warnings.forEach((warning) => {
+      console.warn(
+        JSON.stringify({ level: "warning", message: warning, source: "import-dataset" })
+      );
+    });
+    return;
+  }
+
+  console.warn("Warnings:");
+  warnings.forEach((warning) => console.warn(`- ${warning}`));
+};
+
 const run = async () => {
   const options = parseArgs();
   if (options.help) {
@@ -276,21 +314,25 @@ const run = async () => {
     return { meta: result.meta, departments: result.departments, theme: result.theme?.source ?? null, warnings: result.warnings };
   })();
 
-  const moduleSource = createModuleSource(
-    { meta, departments, theme },
-    warnings
-  );
+  const moduleSource = createModuleSource({ meta, departments, theme }, warnings);
 
   if (options.dryRun) {
     console.log(moduleSource);
-    return;
   }
 
-  await writeFile(path.resolve(options.output), moduleSource, "utf8");
-  console.log(`Dataset module updated at ${options.output}`);
   if (warnings.length) {
-    console.warn("Warnings:");
-    warnings.forEach((warning) => console.warn(`- ${warning}`));
+    logWarnings(warnings, options.logFormat);
+    if (options.failOnWarning) {
+      if (!options.dryRun) {
+        console.error("Import aborted: data quality warnings detected.");
+      }
+      process.exit(2);
+    }
+  }
+
+  if (!options.dryRun) {
+    await writeFile(path.resolve(options.output), moduleSource, "utf8");
+    console.log(`Dataset module updated at ${options.output}`);
   }
 };
 

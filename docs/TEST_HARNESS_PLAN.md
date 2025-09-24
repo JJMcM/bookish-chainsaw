@@ -111,7 +111,11 @@ rather than pixel comparisons to keep the harness fast.
 ## Continuous Integration
 
 * Add a GitHub Actions workflow (e.g., `.github/workflows/test.yml`) that installs Node 18,
-  caches `node_modules`, and runs `npm test` on every pull request.
+  caches `node_modules`, runs `npm run check`, and executes the dataset importer in
+  `--dry-run --fail-on-warning` mode against new exports.
+* Provision a portable Chromium build (checked into internal artifact storage) and expose its
+  path via `PUPPETEER_EXECUTABLE_PATH` so keyboard and accessibility flows run in CI without
+  internet access.
 * This ensures data updates or UI refactors cannot be merged without passing automated checks.
 
 ## Next Steps
