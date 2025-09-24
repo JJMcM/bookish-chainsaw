@@ -56,6 +56,41 @@ the codebase, data flow, and suggested next steps.
 * Tweak the palette or component styling in `assets/styles.css` to align with brand
   guidelines.
 
+
+## Code Quality Tooling
+
+This repository ships with shared linting and formatting tools to keep the codebase
+consistent:
+
+* **ESLint** checks the JavaScript modules in `src/` for logic and import issues.
+* **Prettier** enforces consistent formatting across JavaScript, CSS, Markdown, and JSON files.
+* **stylelint** validates CSS in `assets/` and any future style sheets.
+
+### Setup
+
+Install the development dependencies (Node.js 18+ recommended):
+
+```bash
+npm install
+```
+
+### Usage
+
+Run all linters:
+
+```bash
+npm run lint
+```
+
+Format the project in place:
+
+```bash
+npm run format
+```
+
+Each script can be run individually as well: `npm run lint:js` for JavaScript and
+`npm run lint:css` for CSS.
+
 ## Next Ideas
 
 * Wire up real APIs or CSV exports by replacing the static data module with fetch calls.

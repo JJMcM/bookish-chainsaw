@@ -1,0 +1,29 @@
+{
+  "name": "bookish-chainsaw",
+  "version": "1.0.0",
+  "description": "A lightweight, framework-free dashboard that highlights the health of workplace teams. It summarises metrics, trend lines, upcoming meetings, and narrative highlights across Operations, Engineering, People Operations, and Workplace Experience departments.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "lint": "npm run lint:js && npm run lint:css",
+    "lint:js": "eslint \"src/**/*.js\" --max-warnings=0",
+    "lint:css": "stylelint \"**/*.css\"",
+    "format": "prettier --write \"{src,docs,assets}/**/*.{js,json,css,md}\" index.html"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "prettier": "^3.2.5",
+    "stylelint": "^16.6.1",
+    "stylelint-config-prettier": "^9.0.5",
+    "stylelint-config-standard": "^36.0.0",
+    "stylelint-order": "^6.0.4"
+  }
+}
