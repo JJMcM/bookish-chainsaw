@@ -14,10 +14,12 @@ lives in a handful of files:
 ├── assets/
 │   └── styles.css     # Global look-and-feel, layout, and component styles
 ├── src/
-│   ├── data.js        # Source-of-truth metrics for each department
-│   └── main.js        # Client-side rendering + interactivity layer
-└── docs/
-    └── ONBOARDING.md  # You are here
+│   ├── data.js        # Source-of-truth dataset (meta + department details)
+│   ├── dashboard.js   # Rendering orchestration & DOM bindings
+│   ├── utils/         # Pure helpers (formatting, etc.)
+│   └── validation.js  # Schema sanitisation and warning emission
+├── scripts/           # Offline linting + packaging helpers
+└── tests/             # Minimal DOM harness and regression checks
 ```
 
 Because the site is completely static, there is no build tooling or dependency
@@ -44,15 +46,25 @@ installation required—opening `index.html` in a modern browser will execute th
    * Updating this file is the fastest way to swap in real metrics or curate a different
      narrative for each team while the rest of the UI logic remains unchanged.
 
-4. **Rendering logic (`src/main.js`)**
-   * Imports the `departments` data and caches references to all mount points in the DOM.
-   * Populates the department selector (`<select>`) from the data array during
-     initialization.
-   * Contains small renderer functions for each dashboard section (statistics cards,
-     trend chart, projects list, highlights list, and meetings sidebar). Each renderer
-     receives the current department object and updates only its slice of the UI.
-   * Tracks the currently selected department via the dropdown’s change event and re-runs
-     all renderers whenever the selection changes.
+4. **Rendering controller (`src/dashboard.js`)**
+   * Validates the dataset, stores warnings, and attaches DOM event handlers.
+   * Renders each section (stats, trend chart + table, lists, meetings) via focused helper
+     functions and exposes a `setView` method for toggling chart/table modes.
+   * Drives the warnings banner and meta badges so data issues are surfaced to operators.
+
+5. **Entry point (`src/main.js`)**
+   * Imports the compiled `dataset` and simply calls `createDashboard(document, dataset)`.
+   * The minimal shell keeps browser code lean and maximises reusability in tests.
+
+6. **Validation layer (`src/validation.js`)**
+   * Normalises any shape mismatches in the dataset so the UI never crashes on malformed
+     input.
+   * Emits human-readable warnings that appear in the dashboard banner.
+
+7. **Testing harness (`tests/`)**
+   * Provides a bespoke mock DOM implementation so renderers can be exercised without
+     external libraries.
+   * Includes HTML lint checks that guard against regressions (e.g., remote asset links).
 
 The renderers operate on plain DOM APIs rather than a framework so it is easy to follow
 what happens. When a department is selected, the code clears existing child nodes in each
@@ -60,29 +72,29 @@ section and rebuilds the markup based on the new data set.
 
 ## Key Concepts to Understand
 
-* **Data contracts** – Every department entry in `src/data.js` must provide the fields
-  the renderers expect (`metrics`, `trend.datapoints`, `projects.items`, etc.). Keeping
-  that schema stable ensures the UI will remain consistent.
-* **Formatting helpers** – `formatValue` in `src/main.js` centralizes how numbers are
-  displayed (thousands separators, percentage suffixes, minimum bar height), so extending
-  the formatter is safer than sprinkling formatting logic across renderers.
-* **Accessibility considerations** – The dashboard uses semantic HTML landmarks,
-  provides `aria-label` attributes for chart regions, and sets text equivalents for data
-  so screen readers can interpret the content. Continue that pattern for new components.
+* **Data contracts** – The validation layer sanitises bad input, but supplying complete
+  objects keeps the UI richer and minimises warning noise. Refer to
+  [`docs/data-contract.md`](./data-contract.md) when shaping new exports.
+* **Formatting helpers** – `src/utils/format.js` centralises number formatting. Extend it
+  instead of inlining formatting logic across renderers to preserve consistency.
+* **Accessibility considerations** – Live regions, toggle controls, and chart fallbacks
+  ensure the UI remains usable with assistive tech. Mirror this approach when adding
+  features (e.g., always provide text alternatives and keyboard interactions).
+* **Offline guardrails** – The CSS and scripts lint checks guarantee no remote resources
+  are referenced. When adding assets, keep everything locally resolvable.
 
 ## Suggested Next Steps for Contributors
 
-1. **Automate quality checks** – Introduce tooling such as Prettier, ESLint, or stylelint
-   to enforce formatting and catch common issues before committing changes.
-2. **Add tests** – Consider wiring up lightweight DOM snapshot tests (e.g., with Vitest or
-   Jest + jsdom) to validate that renderer functions output the expected structures when
-   data changes.
-3. **Connect real data sources** – Replace the static data module with fetch calls to an
-   internal API or CSV export so the dashboard reflects live information.
-4. **Enhance visuals** – Explore integrating a charting library for more sophisticated
-   trend visualizations or add drill-down views per metric card.
-5. **Document contribution workflows** – Expand the README with coding standards,
-   branching strategy, and review guidelines as the team grows.
+1. **Strengthen test coverage** – Expand the custom harness or integrate a headless
+   browser to capture keyboard interaction flows and accessibility audits.
+2. **Build an offline data ingestion CLI** – Script the transformation from CSV/JSON
+   exports into the `dataset` module so updates remain reproducible.
+3. **Refine visual theming** – Consider theming hooks (e.g., CSS custom property overrides)
+   so downstream teams can reskin without editing component styles.
+4. **Explore print/export views** – An offline PDF or printable layout helps share
+   snapshots during reviews in disconnected environments.
+5. **Codify contribution workflows** – Document branching, code review expectations, and
+   release packaging steps as the contributor base grows.
 
 Welcome aboard, and feel free to reach out to the maintainers if anything in this guide is
 unclear or if you have ideas for improvements!

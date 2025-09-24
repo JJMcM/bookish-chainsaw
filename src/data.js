@@ -1,3 +1,10 @@
+export const dashboardMeta = {
+  reportingPeriod: "Week 32 · 2024",
+  lastUpdated: "Manual import · Aug 5, 2024 09:00",
+  refreshGuidance:
+    "Built for transparent operations. Import a new offline dataset to refresh the view."
+};
+
 export const departments = [
   {
     id: "all",
@@ -445,3 +452,8 @@ export const departments = [
     ]
   }
 ];
+
+export const dataset = {
+  meta: dashboardMeta,
+  departments
+};

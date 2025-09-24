@@ -23,23 +23,18 @@ python3 -m http.server 8000
 Then visit [http://localhost:8000](http://localhost:8000) and navigate to
 `index.html`.
 
-### Option 3: Use `npx serve`
-
-If you have Node.js installed:
-
-```bash
-npx serve .
-```
+> **Tip:** The dashboard works entirely offline. None of the workflows above require internet
+> access, and all assets (fonts, data, styles) are bundled locally.
 
 ## Project Structure
 
 ```
-├── assets/
-│   └── styles.css        # Global styling for layout, cards, and charts
+├── assets/               # Styling, locally resolved fonts, and component tokens
+├── docs/                 # Onboarding, data contracts, and test harness design notes
 ├── index.html            # Page shell with layout and semantic structure
-├── src/
-│   ├── data.js           # Sample data describing each department
-│   └── main.js           # UI rendering + interactivity (filters, charts)
+├── scripts/              # Offline-friendly linting and packaging utilities
+├── src/                  # Data set, renderers, and validation helpers
+└── tests/                # Minimal DOM harness and regression checks
 ```
 
 ### Further Reading
@@ -59,49 +54,33 @@ the codebase, data flow, and suggested next steps.
 
 ## Code Quality Tooling
 
-This repository ships with shared linting and formatting tools to keep the codebase
-consistent:
+All verification runs without third-party dependencies so it can execute on air-gapped
+workstations:
 
-* **ESLint** checks the JavaScript modules in `src/` for logic and import issues.
-* **Prettier** enforces consistent formatting across JavaScript, CSS, Markdown, and JSON files.
-* **stylelint** validates CSS in `assets/` and any future style sheets.
+* `npm run lint:js` executes `node --check` across the source, scripts, and test suites.
+* `npm run lint:css` scans every stylesheet to ensure no remote fonts or imports slip in.
+* `npm test` runs the lightweight DOM harness to confirm renderers and validation logic work.
+* `npm run check` chains the linters and tests.
 
-### Setup
+### Packaging for distribution
 
-Install the development dependencies (Node.js 18+ recommended):
-
-```bash
-npm install
-```
-
-### Usage
-
-Run all linters:
+Create a distributable archive that contains every offline asset:
 
 ```bash
-npm run lint
+npm run package
 ```
 
-Format the project in place:
-
-```bash
-npm run format
-```
-
-Each script can be run individually as well: `npm run lint:js` for JavaScript and
-`npm run lint:css` for CSS.
-
-## Next Ideas
-
-* Wire up real APIs or CSV exports by replacing the static data module with fetch calls.
-* Add authentication and role-based views once you host it behind a lightweight backend.
-* Introduce charts (e.g. with D3 or Chart.js) for richer visuals or historical analysis.
+The command emits `dist/offline-dashboard.tar.gz` which can be copied to any disconnected
+environment.
 
 ## Testing
 
-There are no automated tests yet. Visual inspection in the browser ensures the layout and
-interactions behave as expected across screen sizes.
+Automated regression coverage lives in `tests/`. The harness stubs a minimal DOM so rendering
+and validation can be asserted without browsers or network access:
 
-To introduce automated coverage, follow the [Dashboard Test Harness Plan](docs/TEST_HARNESS_PLAN.md).
-It describes how to adopt Vitest with a jsdom environment so rendering and data-contract
-regressions can be caught before shipping.
+```bash
+npm test
+```
+
+See [`docs/TEST_HARNESS_PLAN.md`](docs/TEST_HARNESS_PLAN.md) for expansion ideas if you later
+introduce a richer testing stack.
